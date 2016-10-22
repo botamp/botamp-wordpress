@@ -289,7 +289,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	 */
 	public function entity_cb() {
 		echo '<p>'
-			. __( 'Choose the post type and fields your bot will use to respond to your customers.', 'botamp' )
+			. __( 'Choose the post fields your bot will use to respond to your customers.', 'botamp' )
 			. '</p>';
 	}
 
