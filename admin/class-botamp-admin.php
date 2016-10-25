@@ -262,6 +262,19 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( 'label_for' => $this->option( 'entity_url' ) )
 		);
 
+		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+			add_settings_field(
+				$this->option( 'order_notifications' ),
+				__( 'Order notifications', 'botamp' ),
+				array( $this, 'order_notifications_cb' ),
+				$this->plugin_name,
+				$this->option( 'general' ),
+				array( 'label_for' => $this->option( 'order_notifications' ) )
+			);
+
+			register_setting( $this->plugin_name, $this->option( 'order_notifications' ) );
+		}
+
 		register_setting( $this->plugin_name, $this->option( 'api_key' ) );
 		register_setting( $this->plugin_name, $this->option( 'post_type' ) );
 		register_setting( $this->plugin_name, $this->option( 'entity_description' ) );
@@ -320,6 +333,22 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			}
 		}
 		$html .= '</select>';
+
+		echo $html;
+
+	}
+
+	/**
+	 * Render checkbox to enable or disable order notifications
+	 *
+	 * @since 1.0.0
+	 */
+	public function order_notifications_cb() {
+		$current_state = $this->get_option( 'order_notifications' );
+
+		$html = '<input type="checkbox" name="'.$this->option( 'order_notifications' ).'" value="enabled" '.
+		checked( 'enabled', $current_state, false ) . '/>';
+   		$html .= '<label for="'.$this->option( 'order_notifications' ).'"> Send users order notifications </label>';
 
 		echo $html;
 
@@ -413,7 +442,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$option = get_option( $this->option( $name ) );
 
-		return (false !== $option && ! empty( $option )) ? $option : $defaults[ $name ];
+		if( !isset( $defaults[ $name ] ) || ( false !== $option && ! empty( $option ) ) ) {
+			return $option;
+		}
+
+	 	return $defaults[ $name ];
 
 	}
 }
