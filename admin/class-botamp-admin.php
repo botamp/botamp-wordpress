@@ -348,7 +348,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$html = '<input type="checkbox" name="'.$this->option( 'order_notifications' ).'" value="enabled" '.
 		checked( 'enabled', $current_state, false ) . '/>';
-   		$html .= '<label for="'.$this->option( 'order_notifications' ).'"> Send users order notifications </label>';
+   		$html .= '<label for="'.$this->option( 'order_notifications' ).'"> Send order notifications to users </label>';
 
 		echo $html;
 
