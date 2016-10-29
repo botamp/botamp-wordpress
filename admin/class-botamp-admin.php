@@ -90,9 +90,13 @@ class Botamp_Admin {
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-botamp-public.php';
 		$plugin_public = new Botamp_Public( $this->plugin_name, $this->version );
-		$plugin_public->create_or_update_entity( $post_id );
+		if( $plugin_public->create_or_update_entity( $post_id ) === true) {
+			die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
+		}
+		else{
+			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
+		}
 
-		die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
 	}
 
 	/**

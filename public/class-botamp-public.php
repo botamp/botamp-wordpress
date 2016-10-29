@@ -76,7 +76,7 @@ class Botamp_Public {
 				if ( ! isset( $params[ $field ] )
 					|| empty( $params[ $field ] )
 					|| false == $params[ $field ] ) {
-						return;
+						return false;
 				}
 			}
 
@@ -103,6 +103,7 @@ class Botamp_Public {
 					$this->set_auth_status( 'unauthorized' );
 				}
 			}
+			return true;
 		}
 	}
 
