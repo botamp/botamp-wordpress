@@ -15,12 +15,24 @@
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap">
+    <?php
+        if( isset( $_POST['action'] ) && $_POST['action'] === 'import_all_posts' ):
+            $this->import_all_posts();
+        else:
+    ?>
 	<h2> <?php echo esc_html( get_admin_page_title() ); ?> </h2>
+
 	<form action="options.php" method="post">
-	<?php
-		settings_fields( $this->plugin_name );
-		do_settings_sections( $this->plugin_name );
-		submit_button();
-	?>
+    <?php
+        settings_fields( $this->plugin_name );
+    	do_settings_sections( $this->plugin_name );
+    	submit_button();
+    ?>
 	</form>
+
+    <form action="" method="post">
+        <input type="hidden" name="action" value="import_all_posts">
+        <?php submit_button('Import all existing posts'); ?>
+    </form>
+    <?php endif; ?>
 </div>

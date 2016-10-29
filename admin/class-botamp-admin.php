@@ -77,6 +77,24 @@ class Botamp_Admin {
 		$this->fields = array_merge( $this->fields, $post_metas );
 	}
 
+	public function import_all_posts() {
+		include_once 'partials/botamp-admin-display-import.php';
+	}
+
+	public function ajax_import_post() {
+		@error_reporting( 0 ); // Don't break the JSON result
+
+		header( 'Content-type: application/json' );
+
+		$post_id = (int) $_REQUEST['post_id'];
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-botamp-public.php';
+		$plugin_public = new Botamp_Public( $this->plugin_name, $this->version );
+		$plugin_public->create_or_update_entity( $post_id );
+
+		die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
+	}
+
 	/**
 	 * Register the stylesheets for the admin area.
 	 *
