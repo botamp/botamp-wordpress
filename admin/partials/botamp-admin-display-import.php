@@ -36,6 +36,7 @@
         var posts = [ <?php echo implode( ',', $posts ); ?> ];
         var successCount = 0;
         var failureCount = 0;
+        var stop = false;
 
         function updateStatus( post_id, message, success ) {
             if( success === true )
@@ -47,6 +48,8 @@
         }
 
         function importPost( post_id ) {
+            if( stop === true )
+                return;
             $.ajax({
                 type: 'POST',
                 url: ajaxurl,
@@ -61,12 +64,13 @@
                     updateStatus( post_id, response, false );
                 },
                 complete: function( response ) {
-                    if( posts.length )
-                        importPost( posts.shift() );
+                    importPost( posts.shift() );
                 }
             })
+            if( !posts.length )
+                stop = true;
         }
-        if( posts.length > 0 )
-            importPost( posts.shift() );
+
+        importPost( posts.shift() );
     });
 </script>
