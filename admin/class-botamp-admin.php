@@ -364,7 +364,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	private function print_field_select( $option ) {
 		$option_value = $this->get_option( $option );
 
-		$html = '<select name = "' . $this->option( $option ) . ' " class = "regular-list" >';
+		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
 		foreach ( $this->fields as $field ) {
 			if ( $option_value === $field ) {
 				$html .= "<option value = '$field' selected='true'>"
