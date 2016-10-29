@@ -156,7 +156,6 @@ class Botamp {
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_setting' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
 		$this->loader->add_action( 'wp_ajax_botamp_import', $plugin_admin, 'ajax_import_post' );
-		$this->loader->add_action( 'wp_ajax_nopriv_botamp_import', $plugin_admin, 'ajax_import_post' );
 
 	}
 
