@@ -52,7 +52,6 @@
                 url: ajaxurl,
                 data: { action: "botamp_import", post_id: post_id },
                 success: function( response ) {
-                    // console.log( response );
                     if ( response.success )
                         updateStatus( post_id, response.success, true );
                     else if( response.error )
@@ -62,7 +61,6 @@
                     updateStatus( post_id, response, false );
                 },
                 complete: function( response ) {
-                    console.log( response );
                     if( posts.length )
                         importPost( posts.shift() );
                 }
