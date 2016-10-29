@@ -32,7 +32,7 @@
 
     <form action="" method="post">
         <input type="hidden" name="action" value="import_all_posts">
-        <?php submit_button('Import all existing posts'); ?>
+        <?php submit_button( __( 'Import all posts' ) ); ?>
     </form>
     <?php endif; ?>
 </div>
