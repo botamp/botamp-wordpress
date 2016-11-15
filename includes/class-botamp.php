@@ -150,11 +150,16 @@ class Botamp {
 
 		$plugin_admin = new Botamp_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'add_option_botamp_api_key', $plugin_admin, 'set_botamp' );
+		$this->loader->add_action( 'update_option_botamp_api_key', $plugin_admin, 'set_botamp' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_setting' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
+		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+			$this->loader->add_action( 'woocommerce_after_checkout_form', $plugin_admin, 'add_messenger_widget' );
+		}
 
 	}
 

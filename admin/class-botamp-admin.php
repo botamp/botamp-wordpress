@@ -52,6 +52,15 @@ class Botamp_Admin {
 	private $fields;
 
 	/**
+	 * The botamp client object
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @var    Botamp\Client         $botamp
+	 */
+	private $botamp;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since 1.0.0
@@ -71,10 +80,20 @@ class Botamp_Admin {
 		 'post_thumbnail_url',
 		 'post_permalink',
 		];
-
 		$post_metas = $wpdb->get_col( "select distinct meta_key from {$wpdb->prefix}postmeta
 										where meta_key not like 'botamp_%'", 0 );
 		$this->fields = array_merge( $this->fields, $post_metas );
+
+		$this->set_botamp();
+	}
+
+	public function set_botamp(){
+		$this->botamp = new Botamp\Client( $this->get_option( 'api_key' ) );
+		if ( defined( 'BOTAMP_API_BASE' ) ) {
+			$this->botamp->setApiBase( BOTAMP_API_BASE );
+		}
+
+		$this->botamp->whitelistForMessenger($this->get_domain());
 	}
 
 	/**
@@ -390,6 +409,44 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo $this->print_field_select( 'entity_url' );
 	}
 
+	public function add_messenger_widget( $checkout ) {
+		if($this->get_option('order_notifications') !== 'enabled')
+			return;
+
+		$attributes = $this->botamp->getPageAttributes();
+
+		echo '<div id="notifications"><h3>'.__('Notifications').'</h3>';
+		echo "<script>
+			 	window.fbAsyncInit = function() {
+				    FB.init({
+				      appId      : '{$attributes['facebook_app_id']}',
+				      xfbml      : true,
+				      version    : 'v2.6'
+				    });
+				};
+
+			  	(function(d, s, id){
+				    var js, fjs = d.getElementsByTagName(s)[0];
+				      if (d.getElementById(id)) {return;}
+				      js = d.createElement(s); js.id = id;
+				      js.src = '//connect.facebook.net/en_US/sdk.js';
+				      fjs.parentNode.insertBefore(js, fjs);
+				  }(document, 'script', 'facebook-jssdk')
+			  	);
+			</script>
+
+			<div class='fb-messenger-checkbox'
+			  origin='{$this->get_domain()}'
+			  page_id='{$attributes['page_id']}'
+			  messenger_app_id='{$attributes['facebook_app_id']}'
+			  user_ref='UNIQUE_REF_PARAM'
+			  prechecked='false'
+			  allow_login='true'
+			  size='standard'>
+			 </div>";
+
+	}
+
 	private function print_field_select( $option ) {
 		$option_value = $this->get_option( $option );
 
@@ -448,5 +505,12 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	 	return $defaults[ $name ];
 
+	}
+
+	private function get_domain(){
+		if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443){
+			return 'https://'.$_SERVER['HTTP_HOST'];
+		}
+		return 'http://'.$_SERVER['HTTP_HOST'];
 	}
 }
