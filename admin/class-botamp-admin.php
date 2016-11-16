@@ -449,6 +449,24 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	}
 
+	public function create_order( $order_id ){
+		$order = new WC_Order( $order_id );
+		$order_metas = [
+			'total' => $order->order_total,
+			'woocommerce_ref' => $_POST['botamp_woocommerce_ref']
+		];
+
+		$entity = [
+			'title' => $order_id.' '.$order->customer_user,
+			'description' => 'Woocommerce order',
+			'url' => $order->get_view_order_url(),
+			'image_url' => '',
+			'entity_type' => 'order',
+			'woocommerce_metas' => $order_metas
+		];
+		$this->botamp->entities->create($entity);
+	}
+
 	private function print_field_select( $option ) {
 		$option_value = $this->get_option( $option );
 
