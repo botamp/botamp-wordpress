@@ -60,6 +60,10 @@ class Botamp_Admin {
 	 */
 	private $botamp;
 
+	private $page_attributes;
+
+	private $woocommerce_ref;
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -93,7 +97,7 @@ class Botamp_Admin {
 			$this->botamp->setApiBase( BOTAMP_API_BASE );
 		}
 
-		$this->botamp->whitelistForMessenger($this->get_domain());
+		$this->page_attributes = $this->botamp->getPageAttributes();
 	}
 
 	/**
@@ -413,13 +417,14 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		if($this->get_option('order_notifications') !== 'enabled')
 			return;
 
-		$attributes = $this->botamp->getPageAttributes();
+		$woocommerce_ref = uniqid('botamp_'.$_SERVER['HTTP_HOST'].'_', true);
 
+		echo '<input type="hidden" name="botamp_woocommerce_ref" value="'.$woocommerce_ref.'">';
 		echo '<div id="notifications"><h3>'.__('Notifications').'</h3>';
 		echo "<script>
 			 	window.fbAsyncInit = function() {
 				    FB.init({
-				      appId      : '{$attributes['facebook_app_id']}',
+				      appId      : '{$this->page_attributes['facebook_app_id']}',
 				      xfbml      : true,
 				      version    : 'v2.6'
 				    });
@@ -434,16 +439,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				  }(document, 'script', 'facebook-jssdk')
 			  	);
 			</script>
-
-			<div class='fb-messenger-checkbox'
-			  origin='{$this->get_domain()}'
-			  page_id='{$attributes['page_id']}'
-			  messenger_app_id='{$attributes['facebook_app_id']}'
-			  user_ref='UNIQUE_REF_PARAM'
-			  prechecked='false'
-			  allow_login='true'
+			<div class='fb-send-to-messenger'
+			  messenger_app_id='{$this->page_attributes['facebook_app_id']}'
+			  page_id='{$this->page_attributes['page_id']}'
+			  data-ref='$woocommerce_ref'
+			  color='blue'
 			  size='standard'>
-			 </div>";
+			</div></div>";
 
 	}
 
@@ -505,12 +507,5 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	 	return $defaults[ $name ];
 
-	}
-
-	private function get_domain(){
-		if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443){
-			return 'https://'.$_SERVER['HTTP_HOST'];
-		}
-		return 'http://'.$_SERVER['HTTP_HOST'];
 	}
 }
