@@ -441,7 +441,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			</script>
 			<div class='fb-send-to-messenger'
 			  messenger_app_id='{$this->page_attributes['facebook_app_id']}'
-			  page_id='{$this->page_attributes['page_id']}'
+			  page_id='{$this->page_attributes['facebook_page_id']}'
 			  data-ref='$woocommerce_ref'
 			  color='blue'
 			  size='standard'>
