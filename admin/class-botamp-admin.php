@@ -89,7 +89,7 @@ class Botamp_Admin {
 		$this->botamp = $this->get_botamp();
 	}
 
-	public function get_botamp(){
+	public function get_botamp() {
 		$botamp = new Botamp\Client( $this->get_option( 'api_key' ) );
 		if ( defined( 'BOTAMP_API_BASE' ) ) {
 			$botamp->setApiBase( BOTAMP_API_BASE );
@@ -150,16 +150,14 @@ class Botamp_Admin {
 	 * @since 1.0.0
 	 */
 	public function display_warning_message() {
-		// Show warning message when API key is empty
-		if ( empty( $this->get_option( 'api_key' ) ) ) {
+		$api_key = $this->get_option( 'api_key' );
+		if ( empty( $api_key ) ) {
 			$html = '<div class="notice notice-warning is-dismissible"> <p>';
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
 			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			echo $html;
-		}
-		else{
-			$api_key = $this->get_option( 'api_key' );
+		} else {
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
@@ -171,15 +169,13 @@ class Botamp_Admin {
 				}
 
 				$this->display_warning_message();
-			}
-			elseif ( 'unauthorized' === $auth_status ) {
+			} elseif ( 'unauthorized' === $auth_status ) {
 				$html = '<div class="notice notice-warning is-dismissible"> <p>';
 				$html .= sprintf( __( 'Authentication with the provided API key is not working.<br/>
 Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 				$html .= '</p> </div>';
 				echo $html;
 			}
-
 		}
 
 	}
@@ -367,9 +363,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function order_notifications_cb() {
 		$current_state = $this->get_option( 'order_notifications' );
 
-		$html = '<input type="checkbox" name="'.$this->option( 'order_notifications' ).'" value="enabled" '.
+		$html = '<input type="checkbox" name="' . $this->option( 'order_notifications' ) . '" value="enabled" ' .
 		checked( 'enabled', $current_state, false ) . '/>';
-   		$html .= '<label for="'.$this->option( 'order_notifications' ).'"> Send order notifications to users </label>';
+			$html .= '<label for="' . $this->option( 'order_notifications' ) . '"> Send order notifications to users </label>';
 
 		echo $html;
 
@@ -412,16 +408,17 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function add_messenger_widget( $checkout ) {
-		if($this->get_option('order_notifications') !== 'enabled')
+		if ( $this->get_option( 'order_notifications' ) !== 'enabled' ) {
 			return;
+		}
 
 		$page_attributes = $this->botamp->me->get()->getBody()['data']['attributes'];
 
-		$user_ref = uniqid('botamp_'.$_SERVER['HTTP_HOST'].'_', true);
+		$user_ref = uniqid( 'botamp_' . $_SERVER['HTTP_HOST'] . '_', true );
 
-		echo '<input type="hidden" name="botamp_user_ref" value="'.$user_ref.'">';
+		echo '<input type="hidden" name="botamp_user_ref" value="' . $user_ref . '">';
 
-		echo '<div id="notifications"><h3>'.__('Notifications').'</h3>';
+		echo '<div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>';
 		echo "<script>
 			 	window.fbAsyncInit = function() {
 				    FB.init({
@@ -450,35 +447,35 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	}
 
-	public function after_order( $order_id ){
+	public function after_order( $order_id ) {
 		$entity = $this->create_entity( $order_id );
-		$this->create_subscription($entity, $_POST['botamp_user_ref']);
+		$this->create_subscription( $entity, $_POST['botamp_user_ref'] );
 	}
 
-	private function create_entity( $order_id ){
+	private function create_entity( $order_id ) {
 		$order = new WC_Order( $order_id );
 		$order_metas = [
-			'total' => $order->order_total
+			'total' => $order->order_total,
 		];
 
 		$entity_attributes = [
-			'title' => $order_id.' '.$order->customer_user,
+			'title' => $order_id . ' ' . $order->customer_user,
 			'description' => 'Woocommerce order',
 			'url' => $order->get_view_order_url(),
 			'image_url' => '',
 			'entity_type' => 'order',
-			'meta' => $order_metas
+			'meta' => $order_metas,
 		];
-		return $this->botamp->entities->create($entity_attributes);
+		return $this->botamp->entities->create( $entity_attributes );
 	}
 
-	private function create_subscription($entity, $user_ref){
+	private function create_subscription( $entity, $user_ref ) {
 		$subscription_attributes = [
 			'entity_id' => $entity->getBody()['data']['id'],
 			'entity_type' => $entity->getBody()['data']['attributes']['entity_type'],
-			'user_ref' => $user_ref
+			'user_ref' => $user_ref,
 		];
-		$this->botamp->subscriptions->create($subscription_attributes);
+		$this->botamp->subscriptions->create( $subscription_attributes );
 	}
 
 	private function print_field_select( $option ) {
@@ -533,7 +530,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$option = get_option( $this->option( $name ) );
 
-		if( !isset( $defaults[ $name ] ) || ( false !== $option && ! empty( $option ) ) ) {
+		if ( ! isset( $defaults[ $name ] ) || ( false !== $option && ! empty( $option ) ) ) {
 			return $option;
 		}
 

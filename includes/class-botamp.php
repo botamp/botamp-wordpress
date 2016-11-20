@@ -159,7 +159,7 @@ class Botamp {
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
 		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 			$this->loader->add_action( 'woocommerce_after_order_notes', $plugin_admin, 'add_messenger_widget' );
-			$this->loader->add_action( 'woocommerce_payment_complete', $plugin_admin, 'after_order');
+			$this->loader->add_action( 'woocommerce_payment_complete', $plugin_admin, 'after_order' );
 		}
 
 	}
