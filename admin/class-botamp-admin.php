@@ -151,14 +151,13 @@ class Botamp_Admin {
 	 * @since 1.0.0
 	 */
 	public function display_warning_message() {
-		// Show warning message when API key is empty
-		if ( empty( $this->get_option( 'api_key' ) ) ) {
+		$api_key = $this->get_option( 'api_key' );
+		if ( empty( $api_key ) ) {
 			$html = '<div class="notice notice-warning is-dismissible"> <p>';
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
 			echo $html;
 		} else {
-			$api_key = $this->get_option( 'api_key' );
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
