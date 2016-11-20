@@ -159,8 +159,8 @@ class Botamp_Admin {
 			$html .= '</p> </div>';
 			echo $html;
 		}
-
-		if ( ! empty( $api_key = $this->get_option( 'api_key' ) ) ) {
+		else{
+			$api_key = $this->get_option( 'api_key' );
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
