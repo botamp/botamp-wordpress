@@ -60,8 +60,6 @@ class Botamp_Admin {
 	 */
 	private $botamp;
 
-	private $page_attributes;
-
 	private $woocommerce_ref;
 
 	/**
@@ -96,8 +94,6 @@ class Botamp_Admin {
 		if ( defined( 'BOTAMP_API_BASE' ) ) {
 			$this->botamp->setApiBase( BOTAMP_API_BASE );
 		}
-
-		$this->page_attributes = $this->botamp->getPageAttributes();
 	}
 
 	/**
@@ -417,14 +413,15 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		if($this->get_option('order_notifications') !== 'enabled')
 			return;
 
-		$woocommerce_ref = uniqid('botamp_'.$_SERVER['HTTP_HOST'].'_', true);
+		$page_attributes = $this->botamp->me->get()->getBody()['data']['attributes'];
 
-		echo '<input type="hidden" name="botamp_woocommerce_ref" value="'.$woocommerce_ref.'">';
+		$user_ref = uniqid('botamp_'.$_SERVER['HTTP_HOST'].'_', true);
+
 		echo '<div id="notifications"><h3>'.__('Notifications').'</h3>';
 		echo "<script>
 			 	window.fbAsyncInit = function() {
 				    FB.init({
-				      appId      : '{$this->page_attributes['facebook_app_id']}',
+				      appId      : '{$page_attributes['facebook_app_id']}',
 				      xfbml      : true,
 				      version    : 'v2.6'
 				    });
@@ -440,9 +437,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			  	);
 			</script>
 			<div class='fb-send-to-messenger'
-			  messenger_app_id='{$this->page_attributes['facebook_app_id']}'
-			  page_id='{$this->page_attributes['facebook_page_id']}'
-			  data-ref='$woocommerce_ref'
+			  messenger_app_id='{$page_attributes['facebook_app_id']}'
+			  page_id='{$page_attributes['facebook_id']}'
+			  data-ref='$user_ref'
 			  color='blue'
 			  size='standard'>
 			</div></div>";
@@ -452,8 +449,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function create_order( $order_id ){
 		$order = new WC_Order( $order_id );
 		$order_metas = [
-			'total' => $order->order_total,
-			'woocommerce_ref' => $_POST['botamp_woocommerce_ref']
+			'total' => $order->order_total
 		];
 
 		$entity = [
