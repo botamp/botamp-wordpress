@@ -82,7 +82,9 @@ class Botamp_Admin {
 	}
 
 	public function ajax_import_post() {
+		// @codingStandardsIgnoreStart
 		@error_reporting( 0 ); // Don't break the JSON result
+		// @codingStandardsIgnoreEnd
 
 		header( 'Content-type: application/json' );
 
