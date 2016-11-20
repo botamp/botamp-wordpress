@@ -417,6 +417,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$user_ref = uniqid('botamp_'.$_SERVER['HTTP_HOST'].'_', true);
 
+		echo '<input type="hidden" name="botamp_user_ref" value="'.$user_ref.'">';
+
 		echo '<div id="notifications"><h3>'.__('Notifications').'</h3>';
 		echo "<script>
 			 	window.fbAsyncInit = function() {
@@ -446,21 +448,35 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	}
 
-	public function create_order( $order_id ){
+	public function after_order( $order_id ){
+		$entity = $this->create_entity( $order_id );
+		$this->create_subscription($entity, $_POST['botamp_user_ref']);
+	}
+
+	private function create_entity( $order_id ){
 		$order = new WC_Order( $order_id );
 		$order_metas = [
 			'total' => $order->order_total
 		];
 
-		$entity = [
+		$entity_attributes = [
 			'title' => $order_id.' '.$order->customer_user,
 			'description' => 'Woocommerce order',
 			'url' => $order->get_view_order_url(),
 			'image_url' => '',
 			'entity_type' => 'order',
-			'woocommerce_metas' => $order_metas
+			'meta' => $order_metas
 		];
-		$this->botamp->entities->create($entity);
+		return $this->botamp->entities->create($entity_attributes);
+	}
+
+	private function create_subscription($entity, $user_ref){
+		$subscription_attributes = [
+			'entity_id' => $entity->getBody()['data']['id'],
+			'entity_type' => $entity->getBody()['data']['attributes']['entity_type'],
+			'user_ref' => $user_ref
+		];
+		$this->botamp->subscriptions->create($subscription_attributes);
 	}
 
 	private function print_field_select( $option ) {
