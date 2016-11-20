@@ -90,10 +90,9 @@ class Botamp_Admin {
 
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-botamp-public.php';
 		$plugin_public = new Botamp_Public( $this->plugin_name, $this->version );
-		if( $plugin_public->create_or_update_entity( $post_id ) === true) {
+		if ( $plugin_public->create_or_update_entity( $post_id ) === true ) {
 			die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
-		}
-		else{
+		} else {
 			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
 		}
 
@@ -158,8 +157,7 @@ class Botamp_Admin {
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
 			echo $html;
-		}
-		else{
+		} else {
 			$api_key = $this->get_option( 'api_key' );
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {

@@ -80,7 +80,6 @@ class Botamp_Public {
 				}
 			}
 
-
 			if ( ! empty( $entity_id = get_post_meta( $post_id, 'botamp_entity_id', true ) ) ) {
 				try {
 					$response = $this->botamp->entities->get( $entity_id );
