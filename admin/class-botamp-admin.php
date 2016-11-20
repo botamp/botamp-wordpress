@@ -86,14 +86,15 @@ class Botamp_Admin {
 										where meta_key not like 'botamp_%'", 0 );
 		$this->fields = array_merge( $this->fields, $post_metas );
 
-		$this->set_botamp();
+		$this->botamp = $this->get_botamp();
 	}
 
-	public function set_botamp(){
-		$this->botamp = new Botamp\Client( $this->get_option( 'api_key' ) );
+	public function get_botamp(){
+		$botamp = new Botamp\Client( $this->get_option( 'api_key' ) );
 		if ( defined( 'BOTAMP_API_BASE' ) ) {
-			$this->botamp->setApiBase( BOTAMP_API_BASE );
+			$botamp->setApiBase( BOTAMP_API_BASE );
 		}
+		return $botamp;
 	}
 
 	/**
@@ -154,32 +155,33 @@ class Botamp_Admin {
 			$html = '<div class="notice notice-warning is-dismissible"> <p>';
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
+			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			echo $html;
 		}
-
-		if ( ! empty( $api_key = $this->get_option( 'api_key' ) ) ) {
+		else{
+			$api_key = $this->get_option( 'api_key' );
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
-					$botamp = new Botamp\Client( $api_key );
-					if ( defined( 'BOTAMP_API_BASE' ) ) {
-						$botamp->setApiBase( BOTAMP_API_BASE );
-					}
-					$botamp->entities->all();
+					$botamp = $this->get_botamp();
+					$botamp->me->get();
 					set_transient( 'botamp_auth_status', 'ok', HOUR_IN_SECONDS );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 				}
 
 				$this->display_warning_message();
-			} elseif ( 'unauthorized' === $auth_status ) {
+			}
+			elseif ( 'unauthorized' === $auth_status ) {
 				$html = '<div class="notice notice-warning is-dismissible"> <p>';
 				$html .= sprintf( __( 'Authentication with the provided API key is not working.<br/>
 Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 				$html .= '</p> </div>';
 				echo $html;
 			}
+
 		}
+
 	}
 
 	/**
