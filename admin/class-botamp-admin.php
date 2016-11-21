@@ -447,34 +447,85 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function after_order( $order_id ) {
-		$entity = $this->create_entity( $order_id );
+		$entity = $this->create_entity( $this->get_order_meta( $order_id ) );
+
 		$this->create_subscription( $entity, $_POST['botamp_user_ref'] );
 	}
 
-	private function create_entity( $order_id ) {
-		$order = new WC_Order( $order_id );
-		$order_metas = [
-			'total' => $order->order_total,
+	private function create_entity( $order_meta ) {
+		$entity_attributes = [
+			'title' => $order_meta['order_number'] . ' - ' . $order_meta['recipient_name'],
+			'url' => $order_meta['order_url'],
+			'entity_type' => 'order',
+			'meta' => $order_meta,
 		];
 
-		$entity_attributes = [
-			'title' => $order_id . ' ' . $order->customer_user,
-			'description' => 'Woocommerce order',
-			'url' => $order->get_view_order_url(),
-			'image_url' => '',
-			'entity_type' => 'order',
-			'meta' => $order_metas,
-		];
 		return $this->botamp->entities->create( $entity_attributes );
 	}
 
 	private function create_subscription( $entity, $user_ref ) {
 		$subscription_attributes = [
-			'entity_id' => $entity->getBody()['data']['id'],
-			'entity_type' => $entity->getBody()['data']['attributes']['entity_type'],
-			'user_ref' => $user_ref,
+		'entity_id' => $entity->getBody()['data']['id'],
+		'entity_type' => $entity->getBody()['data']['attributes']['entity_type'],
+		'user_ref' => $user_ref,
 		];
-		$this->botamp->subscriptions->create( $subscription_attributes );
+		return $this->botamp->subscriptions->create( $subscription_attributes );
+	}
+
+	private function get_order_meta( $order_id ){
+		$order = new WC_Order( $order_id );
+
+		$order_meta = [
+			'recipient_name' => $order->billing_first_name . ' ' . $order->billing_last_name,
+			'order_number' => $order->get_order_number(),
+			'currency' => $order->order_currency,
+			'payment_method' => $order->payment_method_title,
+			'order_url' => $order->get_view_order_url(),
+			'timestamp' => strtotime( $order->order_date ),
+			'address' => [
+				'street_1' => $order->billing_address_1,
+				'street_2' => $order->billing_address_2,
+				'city' => $order->billing_city,
+				'postal_code' => $order->billing_postcode,
+				'state' => $order->billing_state,
+				'country' => $order->billing_country
+			],
+			'elements' => [],
+			'summary' => [
+				'subtotal' => $order->get_subtotal(),
+				'shipping_cost' => $order->order_shipping,
+				'total_tax' => $order->order_tax,
+				'total_cost' => $order->order_total,
+			],
+			'adjustments' => []
+		];
+
+		foreach($order->get_items() as $item){
+			$order_meta['elements'][] = [
+				'name' => $item['name'],
+				'subtitle' => '',
+				'quantity' => $item['qty'],
+				'price' => $item['line_subtotal'],
+				'currency' => $order->order_currency,
+				'image_url' => ( new WC_Product( $item['product_id'] ) )->get_image()
+			];
+		}
+
+		foreach($order->get_items( 'coupon' ) as $item){
+			$order_meta['adjustments'][] = [
+				'name' => $item['name'],
+				'amount' => $item['discount_amount']
+			];
+		}
+
+		foreach($order->get_items( 'fee' ) as $item){
+			$order_meta['adjustments'][] = [
+				'name' => $item['name'],
+				'amount' => $item['line_total']
+			];
+		}
+
+		return $order_meta;
 	}
 
 	private function print_field_select( $option ) {
@@ -519,12 +570,12 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	private function get_option( $name ) {
 		$defaults = [
-		 'api_key' => '',
-		 'post_type' => 'post',
-		 'entity_description' => 'post_content',
-		 'entity_image_url' => 'post_thumbnail_url',
-		 'entity_title' => 'post_title',
-		 'entity_url' => 'post_permalink',
+		'api_key' => '',
+		'post_type' => 'post',
+		'entity_description' => 'post_content',
+		'entity_image_url' => 'post_thumbnail_url',
+		'entity_title' => 'post_title',
+		'entity_url' => 'post_permalink',
 		];
 
 		$option = get_option( $this->option( $name ) );
@@ -533,7 +584,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			return $option;
 		}
 
-	 	return $defaults[ $name ];
+		return $defaults[ $name ];
 
 	}
 }
