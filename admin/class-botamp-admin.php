@@ -472,7 +472,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $this->botamp->subscriptions->create( $subscription_attributes );
 	}
 
-	private function get_order_meta( $order_id ){
+	private function get_order_meta( $order_id ) {
 		$order = new WC_Order( $order_id );
 
 		$order_meta = [
@@ -488,7 +488,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				'city' => $order->billing_city,
 				'postal_code' => $order->billing_postcode,
 				'state' => $order->billing_state,
-				'country' => $order->billing_country
+				'country' => $order->billing_country,
 			],
 			'elements' => [],
 			'summary' => [
@@ -497,31 +497,31 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				'total_tax' => $order->order_tax,
 				'total_cost' => $order->order_total,
 			],
-			'adjustments' => []
+			'adjustments' => [],
 		];
 
-		foreach($order->get_items() as $item){
+		foreach ( $order->get_items() as $item ) {
 			$order_meta['elements'][] = [
 				'name' => $item['name'],
 				'subtitle' => '',
 				'quantity' => $item['qty'],
 				'price' => $item['line_subtotal'],
 				'currency' => $order->order_currency,
-				'image_url' => ( new WC_Product( $item['product_id'] ) )->get_image()
+				'image_url' => ( new WC_Product( $item['product_id'] ) )->get_image(),
 			];
 		}
 
-		foreach($order->get_items( 'coupon' ) as $item){
+		foreach ( $order->get_items( 'coupon' ) as $item ) {
 			$order_meta['adjustments'][] = [
 				'name' => $item['name'],
-				'amount' => $item['discount_amount']
+				'amount' => $item['discount_amount'],
 			];
 		}
 
-		foreach($order->get_items( 'fee' ) as $item){
+		foreach ( $order->get_items( 'fee' ) as $item ) {
 			$order_meta['adjustments'][] = [
 				'name' => $item['name'],
-				'amount' => $item['line_total']
+				'amount' => $item['line_total'],
 			];
 		}
 
