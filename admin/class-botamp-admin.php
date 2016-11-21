@@ -161,8 +161,7 @@ class Botamp_Admin {
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
-					$botamp = $this->get_botamp();
-					$botamp->me->get();
+					$this->botamp->me->get();
 					set_transient( 'botamp_auth_status', 'ok', HOUR_IN_SECONDS );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
