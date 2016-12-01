@@ -505,7 +505,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				'quantity' => $item['qty'],
 				'price' => $item['line_subtotal'],
 				'currency' => $order->order_currency,
-				'image_url' => $this->get_product_url( $item['product_id'] )
+				'image_url' => $this->get_product_url( $item['product_id'] ),
 			];
 		}
 
