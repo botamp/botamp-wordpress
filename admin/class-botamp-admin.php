@@ -60,8 +60,6 @@ class Botamp_Admin {
 	 */
 	private $botamp;
 
-	private $woocommerce_ref;
-
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -413,9 +411,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$page_attributes = $this->botamp->me->get()->getBody()['data']['attributes'];
 
-		$user_ref = uniqid( 'botamp_' . $_SERVER['HTTP_HOST'] . '_', true );
+		$ref = uniqid( 'botamp_' . $_SERVER['HTTP_HOST'] . '_', true );
 
-		echo '<input type="hidden" name="botamp_user_ref" value="' . $user_ref . '">';
+		echo '<input type="hidden" name="botamp_ref" value="' . $ref . '">';
 
 		echo '<div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>';
 		echo "<script>
@@ -439,7 +437,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			<div class='fb-send-to-messenger'
 			  messenger_app_id='{$page_attributes['facebook_app_id']}'
 			  page_id='{$page_attributes['facebook_id']}'
-			  data-ref='$user_ref'
+			  data-ref='$ref'
 			  color='blue'
 			  size='standard'>
 			</div></div>";
@@ -449,7 +447,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function after_order( $order_id ) {
 		$entity = $this->create_entity( $this->get_order_meta( $order_id ) );
 
-		$this->create_subscription( $entity, $_POST['botamp_user_ref'] );
+		$this->create_subscription( $entity, $_POST['botamp_ref'] );
 	}
 
 	private function create_entity( $order_meta ) {
@@ -463,11 +461,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $this->botamp->entities->create( $entity_attributes );
 	}
 
-	private function create_subscription( $entity, $user_ref ) {
+	private function create_subscription( $entity, $ref ) {
 		$subscription_attributes = [
 		'entity_id' => $entity->getBody()['data']['id'],
-		'entity_type' => $entity->getBody()['data']['attributes']['entity_type'],
-		'user_ref' => $user_ref,
+		'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
+		'ref' => $ref,
 		];
 		return $this->botamp->subscriptions->create( $subscription_attributes );
 	}
