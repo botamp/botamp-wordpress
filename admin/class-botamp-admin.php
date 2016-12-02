@@ -505,7 +505,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				'quantity' => $item['qty'],
 				'price' => $item['line_subtotal'],
 				'currency' => $order->order_currency,
-				'image_url' => $this->get_product_url( $item['product_id'] ),
+				'image_url' => $this->get_product_image_url( $item['product_id'] ),
 			];
 		}
 
@@ -526,7 +526,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $order_meta;
 	}
 
-	private function get_product_url( $product_id ) {
+	private function get_product_image_url( $product_id ) {
 		$product = new WC_Product( $product_id );
 		$attachment_id = $product->get_gallery_attachment_ids()[0];
 		return wp_get_attachment_image_src( $attachment_id )['url'];
