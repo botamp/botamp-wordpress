@@ -468,9 +468,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		'ref' => $ref,
 		];
 
-		try{
+		try {
 			$this->botamp->subscriptions->create( $subscription_attributes );
-		}catch(Botamp\Exceptions\UnprocessableEntity $e){
+		} catch (Botamp\Exceptions\UnprocessableEntity $e) {
 
 		}
 	}
