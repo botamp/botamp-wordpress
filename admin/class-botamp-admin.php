@@ -467,7 +467,12 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
 		'ref' => $ref,
 		];
-		return $this->botamp->subscriptions->create( $subscription_attributes );
+
+		try{
+			$this->botamp->subscriptions->create( $subscription_attributes );
+		}catch(Botamp\Exceptions\UnprocessableEntity $e){
+
+		}
 	}
 
 	private function get_order_meta( $order_id ) {
