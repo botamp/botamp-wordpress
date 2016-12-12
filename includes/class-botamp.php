@@ -159,7 +159,10 @@ class Botamp {
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
 		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 			$this->loader->add_action( 'woocommerce_after_order_notes', $plugin_admin, 'add_messenger_widget' );
-			$this->loader->add_action( 'woocommerce_payment_complete', $plugin_admin, 'after_order' );
+			$this->loader->add_action( 'woocommerce_checkout_order_processed', $plugin_admin, 'after_checkout' );
+			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_admin, 'after_status_change' );
+			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_admin, 'after_status_change' );
+			$this->loader->add_action( 'woocommerce_order_status_refunded', $plugin_admin, 'after_status_change' );
 		}
 
 	}

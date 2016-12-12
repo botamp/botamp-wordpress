@@ -413,7 +413,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$ref = uniqid( 'botamp_' . $_SERVER['HTTP_HOST'] . '_', true );
 
-		echo '<input type="hidden" name="botamp_ref" value="' . $ref . '">';
+		echo '<input type="hidden" name="botamp_contact_ref" value="' . $ref . '">';
 
 		echo '<div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>';
 		echo "<script>
@@ -444,28 +444,51 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	}
 
-	public function after_order( $order_id ) {
-		$entity = $this->create_entity( $this->get_order_meta( $order_id ) );
-
-		$this->create_subscription( $entity, $_POST['botamp_ref'] );
+	public function after_checkout( $order_id ) {
+		$order = new WC_Order( $order_id );
+		add_post_meta( $order->post->ID, 'botamp_contact_ref', $_POST['botamp_contact_ref'] );
 	}
 
-	private function create_entity( $order_meta ) {
+	public function after_status_change( $order_id ) {
+		$order = new WC_Order( $order_id );
+
+		if ( ! empty( $entity_id = get_post_meta( $order->post->ID, 'botamp_entity_id', true ) ) ) {
+			$this->update_entity( $entity_id, $order );
+		} else {
+			$entity = $this->create_entity( $order );
+			add_post_meta( $order->post->ID, 'botamp_entity_id', $entity->getBody()['data']['id'] );
+
+			$this->create_subscription( $entity, $order );
+		}
+	}
+
+	private function create_entity( $order ) {
+		$order_meta = $this->get_order_meta( $order );
+
 		$entity_attributes = [
 			'title' => $order_meta['order_number'] . ' - ' . $order_meta['recipient_name'],
 			'url' => $order_meta['order_url'],
 			'entity_type' => 'order',
+			'status' => $order->get_status(),
 			'meta' => $order_meta,
 		];
 
 		return $this->botamp->entities->create( $entity_attributes );
 	}
 
-	private function create_subscription( $entity, $ref ) {
+	private function update_entity( $entity_id, $order ) {
+		$entity = $this->botamp->entities->get( $entity_id );
+		$entity_attributes = $entity->getBody()['data']['attributes'];
+		$entity_attributes['status'] = $order->get_status();
+
+		$this->botamp->entities->update( $entity_id, $entity_attributes );
+	}
+
+	private function create_subscription( $entity, $order ) {
 		$subscription_attributes = [
 		'entity_id' => $entity->getBody()['data']['id'],
 		'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
-		'ref' => $ref,
+		'ref' => get_post_meta( $order->post->ID, 'botamp_contact_ref', true ),
 		];
 
 		try {
@@ -475,8 +498,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		}
 	}
 
-	private function get_order_meta( $order_id ) {
-		$order = new WC_Order( $order_id );
+	private function get_order_meta( $order ) {
 
 		$order_meta = [
 			'recipient_name' => $order->billing_first_name . ' ' . $order->billing_last_name,
