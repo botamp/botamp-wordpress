@@ -452,13 +452,15 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function after_status_change( $order_id ) {
 		$order = new WC_Order( $order_id );
 
-		if ( ! empty( $entity_id = get_post_meta( $order->post->ID, 'botamp_entity_id', true ) ) ) {
+		if ( ! $this->subscribed( $order ) ) {
+			return;
+		}
+
+		if ( $this->order_created( $order ) ) {
 			$this->update_entity( $entity_id, $order );
 		} else {
 			$entity = $this->create_entity( $order );
-			add_post_meta( $order->post->ID, 'botamp_entity_id', $entity->getBody()['data']['id'] );
-
-			$this->create_subscription( $entity, $order );
+			$subscription = $this->create_subscription( $entity, $order );
 		}
 	}
 
@@ -473,7 +475,10 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			'meta' => $order_meta,
 		];
 
-		return $this->botamp->entities->create( $entity_attributes );
+		$entity = $this->botamp->entities->create( $entity_attributes );
+		add_post_meta( $order->post->ID, 'botamp_entity_id', $entity->getBody()['data']['id'] );
+
+		return $entity;
 	}
 
 	private function update_entity( $entity_id, $order ) {
@@ -486,16 +491,28 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	private function create_subscription( $entity, $order ) {
 		$subscription_attributes = [
-		'entity_id' => $entity->getBody()['data']['id'],
-		'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
-		'ref' => get_post_meta( $order->post->ID, 'botamp_contact_ref', true ),
+			'entity_id' => $entity->getBody()['data']['id'],
+			'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
+			'ref' => get_post_meta( $order->post->ID, 'botamp_contact_ref', true ),
 		];
 
-		try {
-			$this->botamp->subscriptions->create( $subscription_attributes );
-		} catch (Botamp\Exceptions\UnprocessableEntity $e) {
+		$subscription = $this->botamp->subscriptions->create( $subscription_attributes );
 
-		}
+		add_post_meta( $order->post->ID, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
+
+		return $subscription;
+	}
+
+	private function subscribed( $order ) {
+		$refs = $this->botamp->me->get()->getBody()['data']['attributes']['contacts_refs'];
+
+		$ref = get_post_meta( $order->post->ID, 'botamp_contact_ref', true );
+
+		return in_array( $ref, $refs ) ? true : false;
+	}
+
+	private function order_created( $order ) {
+		return ! empty( get_post_meta( $order->post->ID, 'botamp_entity_id', true ) );
 	}
 
 	private function get_order_meta( $order ) {
