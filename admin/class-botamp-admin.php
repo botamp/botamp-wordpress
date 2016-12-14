@@ -487,6 +487,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$entity = $this->botamp->entities->get( $entity_id );
 		$entity_attributes = $entity->getBody()['data']['attributes'];
 		$entity_attributes['status'] = $order->get_status();
+		$entity_attributes['meta'] = $this->get_order_meta( $order );
 
 		$this->botamp->entities->update( $entity_id, $entity_attributes );
 	}
