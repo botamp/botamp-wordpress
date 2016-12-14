@@ -2,3 +2,6 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+a.botamp_order_unsuscribe {
+  margin-top: 5px;
+}

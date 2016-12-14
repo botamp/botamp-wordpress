@@ -163,8 +163,10 @@ class Botamp {
 			$this->loader->add_action( 'woocommerce_order_status_processing', $plugin_admin, 'after_status_change' );
 			$this->loader->add_action( 'woocommerce_order_status_completed', $plugin_admin, 'after_status_change' );
 			$this->loader->add_action( 'woocommerce_order_status_refunded', $plugin_admin, 'after_status_change' );
+			$this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $plugin_admin, 'add_unsuscribe_button',10, 2 );
+			$this->loader->add_filter( 'query_vars', $plugin_admin, 'add_query_vars', 0 );
+			$this->loader->add_action( 'woocommerce_account_botamp_order_unsuscribe_endpoint', $plugin_admin, 'delete_subscription' );
 		}
-
 	}
 
 	/**
