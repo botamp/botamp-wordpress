@@ -445,8 +445,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function after_checkout( $order_id ) {
-		$order = new WC_Order( $order_id );
-		add_post_meta( $order->post->ID, 'botamp_contact_ref', $_POST['botamp_contact_ref'] );
+		add_post_meta( $order_id, 'botamp_contact_ref', $_POST['botamp_contact_ref'] );
 	}
 
 	public function after_status_change( $order_id ) {
@@ -475,7 +474,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	public function add_unsuscribe_button( $actions, $order )
 	{
-		$subscription_id = get_post_meta( $order->post->ID, 'botamp_subscription_id', true );
+		$subscription_id = get_post_meta( $order->id, 'botamp_subscription_id', true );
 
 		if( empty($subscription_id) ){
 			return;
@@ -492,20 +491,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $actions;
 	}
 
-	public function delete_subscription() {
-		global $wp;
-		$current_url = home_url(add_query_arg(array(),$wp->request));
-
-		$order_id = substr( $current_url, strrpos($current_url,'/') + 1 );
-		$subscription_id = get_post_meta($order_id, 'botamp_subscription_id', true);
-
-		$this->botamp->subscriptions->delete( $subscription_id );
-
-		delete_post_meta($order_id, 'botamp_subscription_id');
-
-		echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
-	}
-
 	private function create_entity( $order ) {
 		$order_meta = $this->get_order_meta( $order );
 
@@ -518,7 +503,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		];
 
 		$entity = $this->botamp->entities->create( $entity_attributes );
-		add_post_meta( $order->post->ID, 'botamp_entity_id', $entity->getBody()['data']['id'] );
+		add_post_meta( $order->id, 'botamp_entity_id', $entity->getBody()['data']['id'] );
 
 		return $entity;
 	}
@@ -541,13 +526,31 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$subscription = $this->botamp->subscriptions->create( $subscription_attributes );
 
-		add_post_meta( $order->post->ID, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
+		add_post_meta( $order->id, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
 
 		return $subscription;
 	}
 
+	public function delete_subscription() {
+		global $wp;
+		$current_url = home_url(add_query_arg(array(),$wp->request));
+
+		$order_id = substr( $current_url, strrpos($current_url,'/') + 1 );
+		$subscription_id = get_post_meta($order_id, 'botamp_subscription_id', true);
+
+		$this->botamp->subscriptions->delete( $subscription_id );
+
+		delete_post_meta($order_id, 'botamp_subscription_id');
+
+		echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
+	}
+
 	private function get_contact( $order ) {
-		$ref = get_post_meta( $order->post->ID, 'botamp_contact_ref', true );
+		$ref = get_post_meta( $order->id, 'botamp_contact_ref', true );
+
+		if(empty($ref)) {
+			return false;
+		}
 
 		try{
 			$contact = $this->botamp->contacts->get($ref);
@@ -558,7 +561,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	private function order_created( $order ) {
-		return ! empty( get_post_meta( $order->post->ID, 'botamp_entity_id', true ) );
+		return ! empty( get_post_meta( $order->id, 'botamp_entity_id', true ) );
 	}
 
 	private function get_order_meta( $order ) {
