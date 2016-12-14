@@ -445,25 +445,16 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function after_checkout( $order_id ) {
-		add_post_meta( $order_id, 'botamp_contact_ref', $_POST['botamp_contact_ref'] );
-	}
-
-	public function after_status_change( $order_id ) {
-		$order = new WC_Order( $order_id );
-
-		$contact = $this->get_contact( $order );
-
-		if ( $contact === false ) {
+		$contact = $this->botamp->contacts->get( $_POST['botamp_contact_ref'] );
+		if( $contact === false ) {
 			return;
 		}
 
-		if ( $this->order_created( $order ) ) {
-			$entity_id = get_post_meta( $order->id, 'botamp_entity_id', true);
-			$this->update_entity( $entity_id, $order );
-		} else {
-			$entity = $this->create_entity( $order );
-			$subscription = $this->create_subscription( $entity, $contact, $order );
-		}
+		$entity = $this->create_entity( $order_id );
+
+		$subscription = $this->create_subscription( $entity, $contact );
+
+		add_post_meta( $order_id, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
 	}
 
 	public function add_query_vars( $vars ) {
@@ -491,7 +482,28 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $actions;
 	}
 
-	private function create_entity( $order ) {
+	public function update_entity( $order_id ) {
+		$subscription_id = get_post_meta( $order_id, 'botamp_subscription_id', true );
+
+		if( empty( $subscription_id ) ) {
+			return;
+		}
+
+		$order = new WC_Order( $order_id );
+
+		$subscription = $this->botamp->subscriptions->get( $subscription_id );
+		$entity_id = $subscription->getBody()['data']['attributes']['entity_id'];
+		$entity = $this->botamp->entities->get( $entity_id );
+
+		$entity_attributes = $entity->getBody()['data']['attributes'];
+		$entity_attributes['status'] = $order->get_status();
+		$entity_attributes['meta'] = $this->get_order_meta( $order );
+
+		$this->botamp->entities->update( $entity_id, $entity_attributes );
+	}
+
+	private function create_entity( $order_id ) {
+		$order = new WC_Order( $order_id );
 		$order_meta = $this->get_order_meta( $order );
 
 		$entity_attributes = [
@@ -503,21 +515,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		];
 
 		$entity = $this->botamp->entities->create( $entity_attributes );
-		add_post_meta( $order->id, 'botamp_entity_id', $entity->getBody()['data']['id'] );
 
 		return $entity;
 	}
 
-	private function update_entity( $entity_id, $order ) {
-		$entity = $this->botamp->entities->get( $entity_id );
-		$entity_attributes = $entity->getBody()['data']['attributes'];
-		$entity_attributes['status'] = $order->get_status();
-		$entity_attributes['meta'] = $this->get_order_meta( $order );
-
-		$this->botamp->entities->update( $entity_id, $entity_attributes );
-	}
-
-	private function create_subscription( $entity, $contact, $order ) {
+	private function create_subscription( $entity, $contact ) {
 		$subscription_attributes = [
 			'entity_id' => $entity->getBody()['data']['id'],
 			'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
@@ -525,8 +527,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		];
 
 		$subscription = $this->botamp->subscriptions->create( $subscription_attributes );
-
-		add_post_meta( $order->id, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
 
 		return $subscription;
 	}
@@ -545,26 +545,17 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
 	}
 
-	private function get_contact( $order ) {
-		$ref = get_post_meta( $order->id, 'botamp_contact_ref', true );
-
-		if(empty($ref)) {
-			return false;
-		}
-
+	private function get_contact( $contact_ref ) {
 		try{
-			$contact = $this->botamp->contacts->get($ref);
+			$contact = $this->botamp->contacts->get( $contact_ref );
 			return $contact;
 		} catch(Botamp\Exceptions\NotFound $ex) {
 			return false;
 		}
 	}
 
-	private function order_created( $order ) {
-		return ! empty( get_post_meta( $order->id, 'botamp_entity_id', true ) );
-	}
-
-	private function get_order_meta( $order ) {
+	private function get_order_meta( $order_id ) {
+		$order = new WC_Order( $order_id );
 
 		$order_meta = [
 			'recipient_name' => $order->billing_first_name . ' ' . $order->billing_last_name,
