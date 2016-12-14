@@ -452,7 +452,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function after_status_change( $order_id ) {
 		$order = new WC_Order( $order_id );
 
-		if ( ! $this->subscribed( $order ) ) {
+		$contact = $this->get_contact( $order );
+
+		if ( $contact === false ) {
 			return;
 		}
 
@@ -460,7 +462,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			$this->update_entity( $entity_id, $order );
 		} else {
 			$entity = $this->create_entity( $order );
-			$subscription = $this->create_subscription( $entity, $order );
+			$subscription = $this->create_subscription( $entity, $contact, $order );
 		}
 	}
 
@@ -489,11 +491,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$this->botamp->entities->update( $entity_id, $entity_attributes );
 	}
 
-	private function create_subscription( $entity, $order ) {
+	private function create_subscription( $entity, $contact, $order ) {
 		$subscription_attributes = [
 			'entity_id' => $entity->getBody()['data']['id'],
 			'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
-			'ref' => get_post_meta( $order->post->ID, 'botamp_contact_ref', true ),
+			'contact_id' => $contact->getBody()['data']['id']
 		];
 
 		$subscription = $this->botamp->subscriptions->create( $subscription_attributes );
@@ -503,12 +505,15 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $subscription;
 	}
 
-	private function subscribed( $order ) {
-		$refs = $this->botamp->me->get()->getBody()['data']['attributes']['contacts_refs'];
-
+	private function get_contact( $order ) {
 		$ref = get_post_meta( $order->post->ID, 'botamp_contact_ref', true );
 
-		return in_array( $ref, $refs ) ? true : false;
+		try{
+			$contact = $this->botamp->contacts->get($ref);
+			return $contact;
+		} catch(Botamp\Exceptions\NotFound $ex) {
+			return false;
+		}
 	}
 
 	private function order_created( $order ) {
