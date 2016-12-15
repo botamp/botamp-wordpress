@@ -458,35 +458,35 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function add_query_vars( $vars ) {
-		$vars[] = 'botamp_order_unsuscribe';
+		$vars[] = 'botamp_order_unsubscribe';
 
 			return $vars;
 	}
 
-	public function add_unsuscribe_button( $actions, $order ) {
+	public function add_unsubscribe_button( $actions, $order ) {
 		$subscription_id = get_post_meta( $order->id, 'botamp_subscription_id', true );
 
 		if ( empty( $subscription_id ) ) {
 			return;
 		}
 
-		$actions['botamp_unsuscribe_button'] = [
-			'name' => 'Unsuscribe from notifications',
-			'url' => $this->unsuscribe_endpoint_url( $order->id ),
+		$actions['botamp_unsubscribe_button'] = [
+			'name' => 'unsubscribe from notifications',
+			'url' => $this->unsubscribe_endpoint_url( $order->id ),
 		];
 
 		return $actions;
 	}
 
-	public function add_unsuscribe_all_button( $has_orders ) {
+	public function add_unsubscribe_all_button( $has_orders ) {
 		if ( ! $has_orders || $this->orders_subscribed() === false ) {
 			return;
 		}
 
-		$url = $this->unsuscribe_endpoint_url( 'all' );
+		$url = $this->unsubscribe_endpoint_url( 'all' );
 
-		echo "<div id='botamp_unsuscribe_container'><a href= '{$url}' class='button botamp_unsuscribe_button'>
-				Unsuscribe from all your order notifications
+		echo "<div id='botamp_unsubscribe_container'><a href= '{$url}' class='button botamp_unsubscribe_button'>
+				unsubscribe from all your order notifications
 			</a></div>";
 	}
 
@@ -539,7 +539,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $subscription;
 	}
 
-	public function unsuscribe() {
+	public function unsubscribe() {
 		global $wp;
 		$current_url = home_url( add_query_arg( array(),$wp->request ) );
 
@@ -551,11 +551,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				$this->delete_subscription( $order_id );
 			}
 
-			echo '<p>You have sucessfully unsuscribed from all your order notifications</p>';
+			echo '<p>You have sucessfully unsubscribed from all your order notifications</p>';
 		} else {
 			$this->delete_subscription( $param );
 
-			echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
+			echo '<p>You have sucessfully unsubscribed from your order notifications</p>';
 		}
 
 	}
@@ -699,10 +699,10 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	}
 
-	private function unsuscribe_endpoint_url( $param = '' ) {
+	private function unsubscribe_endpoint_url( $param = '' ) {
 		$myaccount_id = get_option( 'woocommerce_myaccount_page_id' );
 		$myaccount_url = get_permalink( $myaccount_id );
-		return "{$myaccount_url}botamp_order_unsuscribe/{$param}";
+		return "{$myaccount_url}botamp_order_unsubscribe/{$param}";
 	}
 
 	private function orders_subscribed() {

@@ -30,7 +30,7 @@ class Botamp_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-		add_rewrite_endpoint( 'botamp_order_unsuscribe', EP_ROOT | EP_PAGES );
+		add_rewrite_endpoint( 'botamp_order_unsubscribe', EP_ROOT | EP_PAGES );
 		flush_rewrite_rules();
 	}
 
