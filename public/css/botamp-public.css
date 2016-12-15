@@ -2,6 +2,10 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
-a.botamp_order_unsuscribe {
-  margin-top: 5px;
+div#botamp_unsuscribe_container{
+	text-align: center;
+}
+
+a.botamp_unsuscribe_button {
+	margin-top: 5px;
 }

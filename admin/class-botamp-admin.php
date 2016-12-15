@@ -446,7 +446,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	public function after_checkout( $order_id ) {
 		$contact = $this->botamp->contacts->get( $_POST['botamp_contact_ref'] );
-		if( $contact === false ) {
+		if ( false = $contact ) {
 			return;
 		}
 
@@ -460,32 +460,40 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function add_query_vars( $vars ) {
 		$vars[] = 'botamp_order_unsuscribe';
 
- 		return $vars;
+			return $vars;
 	}
 
-	public function add_unsuscribe_button( $actions, $order )
-	{
+	public function add_unsuscribe_button( $actions, $order ) {
 		$subscription_id = get_post_meta( $order->id, 'botamp_subscription_id', true );
 
-		if( empty($subscription_id) ){
+		if ( empty( $subscription_id ) ) {
 			return;
 		}
 
-		$myaccount_id = get_option( 'woocommerce_myaccount_page_id' );
-		$myaccount_url = get_permalink( $myaccount_id );
-
-		$actions['botamp_order_unsuscribe'] = [
+		$actions['botamp_unsuscribe_button'] = [
 			'name' => 'Unsuscribe from notifications',
-			'url' => "{$myaccount_url}botamp_order_unsuscribe/{$order->id}"
+			'url' => $this->unsuscribe_endpoint_url( $order->id ),
 		];
 
 		return $actions;
 	}
 
+	public function add_unsuscribe_all_button( $has_orders ) {
+		if ( ! $has_orders || $this->orders_subscribed() === false ) {
+			return;
+		}
+
+		$url = $this->unsuscribe_endpoint_url( 'all' );
+
+		echo "<div id='botamp_unsuscribe_container'><a href= '{$url}' class='button botamp_unsuscribe_button'>
+				Unsuscribe from all your order notifications
+			</a></div>";
+	}
+
 	public function update_entity( $order_id ) {
 		$subscription_id = get_post_meta( $order_id, 'botamp_subscription_id', true );
 
-		if( empty( $subscription_id ) ) {
+		if ( empty( $subscription_id ) ) {
 			return;
 		}
 
@@ -523,7 +531,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$subscription_attributes = [
 			'entity_id' => $entity->getBody()['data']['id'],
 			'subscription_type' => $entity->getBody()['data']['attributes']['entity_type'],
-			'contact_id' => $contact->getBody()['data']['id']
+			'contact_id' => $contact->getBody()['data']['id'],
 		];
 
 		$subscription = $this->botamp->subscriptions->create( $subscription_attributes );
@@ -531,25 +539,40 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		return $subscription;
 	}
 
-	public function delete_subscription() {
+	public function unsuscribe() {
 		global $wp;
-		$current_url = home_url(add_query_arg(array(),$wp->request));
+		$current_url = home_url( add_query_arg( array(),$wp->request ) );
 
-		$order_id = substr( $current_url, strrpos($current_url,'/') + 1 );
-		$subscription_id = get_post_meta($order_id, 'botamp_subscription_id', true);
+		$param = substr( $current_url, strrpos( $current_url,'/' ) + 1 );
+
+		if ( 'all' === $param ) {
+
+			foreach ( $this->orders_subscribed() as $order_id ) {
+				$this->delete_subscription( $order_id );
+			}
+
+			echo '<p>You have sucessfully unsuscribed from all your order notifications</p>';
+		} else {
+			$this->delete_subscription( $param );
+
+			echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
+		}
+
+	}
+
+	private function delete_subscription( $order_id ) {
+		$subscription_id = get_post_meta( $order_id, 'botamp_subscription_id', true );
 
 		$this->botamp->subscriptions->delete( $subscription_id );
 
-		delete_post_meta($order_id, 'botamp_subscription_id');
-
-		echo '<p>You have sucessfully unsuscribed from your order notifications</p>';
+		delete_post_meta( $order_id, 'botamp_subscription_id' );
 	}
 
 	private function get_contact( $contact_ref ) {
-		try{
+		try {
 			$contact = $this->botamp->contacts->get( $contact_ref );
 			return $contact;
-		} catch(Botamp\Exceptions\NotFound $ex) {
+		} catch (Botamp\Exceptions\NotFound $ex) {
 			return false;
 		}
 	}
@@ -674,5 +697,19 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		return $defaults[ $name ];
 
+	}
+
+	private function unsuscribe_endpoint_url( $param = '' ) {
+		$myaccount_id = get_option( 'woocommerce_myaccount_page_id' );
+		$myaccount_url = get_permalink( $myaccount_id );
+		return "{$myaccount_url}botamp_order_unsuscribe/{$param}";
+	}
+
+	private function orders_subscribed() {
+		global $wpdb;
+		$order_ids = $wpdb->get_col( "select distinct post_id from {$wpdb->prefix}postmeta
+										where meta_key = 'botamp_subscription_id'", 0 );
+
+		return empty( $order_ids ) ? false : $order_ids;
 	}
 }
