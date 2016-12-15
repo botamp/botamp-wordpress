@@ -71,8 +71,10 @@ class Botamp_Public {
 	public function create_or_update_entity( $post_id ) {
 		if ( get_post_type( $post_id ) === get_option( 'botamp_post_type' )
 				&& get_post_status( $post_id ) === 'publish' ) {
+
 			$params = $this->get_fields_values( $post_id );
-			foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
+
+			foreach ( [ 'description', 'url', 'title' ] as $field ) {
 				if ( ! isset( $params[ $field ] )
 					|| empty( $params[ $field ] )
 					|| false == $params[ $field ] ) {
