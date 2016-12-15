@@ -138,7 +138,9 @@ class Botamp_Public {
 
 	private function get_fields_values( $post_id ) {
 		$post = get_post( $post_id, ARRAY_A );
-		$values = [];
+
+		$values = [ 'entity_type' => 'article' ];
+
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
 			switch ( $option = get_option( 'botamp_entity_' . $field ) ) {
 				case 'post_title':
