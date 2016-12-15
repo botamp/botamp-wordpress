@@ -119,8 +119,8 @@ class Botamp_Public {
 				case 'post_thumbnail_url';
 					$values[ $field ] = get_the_post_thumbnail_url( $post_id, 'full' );
 					break;
-                case '';
-                    break;
+				case '';
+					break;
 				default:
 					$values[ $field ] = get_post_meta( $post_id, $option, true );
 					break;
