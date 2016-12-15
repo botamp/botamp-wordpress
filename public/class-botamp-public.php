@@ -11,13 +11,20 @@ class Botamp_Public {
 	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->botamp = new Botamp\Client( get_option( 'botamp_api_key' ) );
 		if ( defined( 'BOTAMP_API_BASE' ) ) {
 			$this->botamp->setApiBase( BOTAMP_API_BASE );
 		}
+	}
+
+	public function enqueue_styles() {
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/botamp-public.css', array(), $this->version, 'all' );
+	}
+
+	public function enqueue_scripts() {
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/botamp-public.js', array( 'jquery' ), $this->version, false );
 	}
 
 	public function create_or_update_entity( $post_id ) {
@@ -119,13 +126,4 @@ class Botamp_Public {
 		}
 		return $values;
 	}
-
-	public function enqueue_styles() {
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/botamp-public.css', array(), $this->version, 'all' );
-	}
-
-	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/botamp-public.js', array( 'jquery' ), $this->version, false );
-	}
-
 }

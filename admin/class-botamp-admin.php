@@ -28,6 +28,14 @@ class Botamp_Admin {
 		$this->fields = array_merge( $this->fields, $post_metas );
 	}
 
+	public function enqueue_styles() {
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/botamp-admin.css', array(), $this->version, 'all' );
+	}
+
+	public function enqueue_scripts() {
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/botamp-admin.js', array( 'jquery' ), $this->version, false );
+	}
+
 	public function import_all_posts() {
 		include_once 'partials/botamp-admin-display-import.php';
 	}
@@ -48,14 +56,6 @@ class Botamp_Admin {
 		} else {
 			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
 		}
-	}
-
-	public function enqueue_styles() {
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/botamp-admin.css', array(), $this->version, 'all' );
-	}
-
-	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/botamp-admin.js', array( 'jquery' ), $this->version, false );
 	}
 
 	public function display_warning_message() {
