@@ -1,6 +1,5 @@
 <?php
 	global $wpdb;
-	$query = ;
 	$posts = $wpdb->get_col( $wpdb->prepare(
 		"SELECT $wpdb->posts.ID
         FROM $wpdb->posts
