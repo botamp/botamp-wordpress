@@ -361,7 +361,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	 * @since 1.0.0
 	 */
 	public function entity_image_url_cb() {
-		echo $this->print_field_select( 'entity_image_url' );
+		$fields = [ '', 'post_thumbnail_url' ];
+
+		echo $this->print_field_select( 'entity_image_url', $fields );
 	}
 
 	/**
@@ -382,11 +384,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo $this->print_field_select( 'entity_url' );
 	}
 
-	private function print_field_select( $option ) {
+	private function print_field_select( $option, $fields = [] ) {
 		$option_value = $this->get_option( $option );
 
+		$fields = empty( $fields ) ? $this->fields : $fields;
+
 		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
-		foreach ( $this->fields as $field ) {
+		foreach ( $fields as $field ) {
 			if ( $option_value === $field ) {
 				$html .= "<option value = '$field' selected='true'>"
 				. $this->field_name( $field )
@@ -434,7 +438,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$option = get_option( $this->option( $name ) );
 
-		return (false !== $option && ! empty( $option )) ? $option : $defaults[ $name ];
+		return (false !== $option) ? $option : $defaults[ $name ];
 
 	}
 }
