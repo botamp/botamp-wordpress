@@ -471,7 +471,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		}
 
 		$actions['botamp_unsubscribe_button'] = [
-			'name' => 'unsubscribe from notifications',
+			'name' => __( 'Unsubscribe from notifications', 'botamp' ),
 			'url' => $this->unsubscribe_endpoint_url( $order->id ),
 		];
 
@@ -485,9 +485,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$url = $this->unsubscribe_endpoint_url( 'all' );
 
-		echo "<div id='botamp_unsubscribe_container'><a href= '{$url}' class='button botamp_unsubscribe_button'>
-				unsubscribe from all your order notifications
-			</a></div>";
+		echo "<div id='botamp_unsubscribe_container'><a href= '{$url}' class='button botamp_unsubscribe_button'>" .
+			__( 'Unsubscribe from all your order notifications', 'botamp' ) .
+			'</a></div>';
 	}
 
 	public function update_entity( $order_id ) {
@@ -551,11 +551,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				$this->delete_subscription( $order_id );
 			}
 
-			echo '<p>You have sucessfully unsubscribed from all your order notifications</p>';
+			echo __( '<p>You have sucessfully unsubscribed from all your order notifications</p>' );
 		} else {
 			$this->delete_subscription( $param );
 
-			echo '<p>You have sucessfully unsubscribed from your order notifications</p>';
+			echo __( '<p>You have sucessfully unsubscribed from your order notifications</p>' );
 		}
 
 	}
