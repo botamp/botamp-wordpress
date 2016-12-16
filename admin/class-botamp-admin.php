@@ -446,7 +446,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	public function after_checkout( $order_id ) {
 		$contact = $this->botamp->contacts->get( $_POST['botamp_contact_ref'] );
-		if ( false = $contact ) {
+		if ( false === $contact ) {
 			return;
 		}
 
