@@ -42,14 +42,14 @@ class Botamp_Woocommerce_Public {
 	}
 
 	public function after_checkout( $order_id ) {
-		$contact = Contact::get( $this->botamp, $_POST['botamp_contact_ref'] );
+		$contact = Contact::get( $_POST['botamp_contact_ref'] );
 		if ( false === $contact ) {
 			return;
 		}
 
-		$entity = Entity::create( $this->botamp, $order_id );
+		$entity = Entity::create( $order_id );
 
-		$subscription = Subscription::create( $this->botamp, $entity, $contact );
+		$subscription = Subscription::create( $entity, $contact );
 
 		add_post_meta( $order_id, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
 	}
@@ -61,7 +61,7 @@ class Botamp_Woocommerce_Public {
 			return;
 		}
 
-		Entity::update( $this->botamp, $order_id );
+		Entity::update( $order_id );
 	}
 
 	public function add_unsubscribe_button( $actions, $order ) {
@@ -105,13 +105,13 @@ class Botamp_Woocommerce_Public {
 		if ( 'all' === $param ) {
 
 			foreach ( $this->botamp_orders() as $order_id ) {
-				Subscription::delete( $this->botamp, $order_id );
+				Subscription::delete( $order_id );
 				delete_post_meta( $order_id, 'botamp_subscription_id' );
 			}
 
 			echo __( '<p>You have sucessfully unsubscribed from all your order notifications</p>' );
 		} else {
-			Subscription::delete( $this->botamp, $param );
+			Subscription::delete( $param );
 			delete_post_meta( $param, 'botamp_subscription_id' );
 
 			echo __( '<p>You have sucessfully unsubscribed from your order notifications</p>' );

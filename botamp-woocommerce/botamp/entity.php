@@ -1,8 +1,9 @@
 <?php
+require_once 'botamp-api-resource.php';
 
-class Entity {
+class Entity extends Botamp_Api_Resource {
 
-	public static function create( $botamp, $order_id ) {
+	public static function create( $order_id ) {
 		$order = new WC_Order( $order_id );
 		$order_meta = self::get_order_meta( $order );
 
@@ -14,12 +15,12 @@ class Entity {
 			'meta' => $order_meta,
 		];
 
-		$entity = $botamp->entities->create( $entity_attributes );
+		$entity = parent::botamp()->entities->create( $entity_attributes );
 
 		return $entity;
 	}
 
-	public static function update( $botamp, $order_id ) {
+	public static function update( $order_id ) {
 		$subscription_id = get_post_meta( $order_id, 'botamp_subscription_id', true );
 
 		if ( empty( $subscription_id ) ) {
@@ -28,15 +29,15 @@ class Entity {
 
 		$order = new WC_Order( $order_id );
 
-		$subscription = $botamp->subscriptions->get( $subscription_id );
+		$subscription = parent::botamp()->subscriptions->get( $subscription_id );
 		$entity_id = $subscription->getBody()['data']['attributes']['entity_id'];
-		$entity = $botamp->entities->get( $entity_id );
+		$entity = parent::botamp()->entities->get( $entity_id );
 
 		$entity_attributes = $entity->getBody()['data']['attributes'];
 		$entity_attributes['status'] = $order->get_status();
 		$entity_attributes['meta'] = self::get_order_meta( $order );
 
-		$entity = $botamp->entities->update( $entity_id, $entity_attributes );
+		$entity = parent::botamp()->entities->update( $entity_id, $entity_attributes );
 
 		return $entity;
 	}
@@ -104,4 +105,3 @@ class Entity {
 		return wp_get_attachment_image_src( $attachment_id )['url'];
 	}
 }
-
