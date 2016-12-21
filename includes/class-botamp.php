@@ -73,7 +73,7 @@ class Botamp {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		if( $this->woocommerce_activated() ) {
+		if ( $this->woocommerce_activated() ) {
 			$this->define_woocommerce_admin_hooks();
 			$this->define_woocommerce_public_hooks();
 		}
@@ -178,9 +178,9 @@ class Botamp {
 
 		$this->loader->add_action( 'woocommerce_after_order_notes', $woocommerce_public, 'add_messenger_widget' );
 		$this->loader->add_action( 'woocommerce_checkout_order_processed', $woocommerce_public, 'after_checkout' );
-		$this->loader->add_action( 'woocommerce_order_status_processing', $woocommerce_public, 'update_entity' );
-		$this->loader->add_action( 'woocommerce_order_status_completed', $woocommerce_public, 'update_entity' );
-		$this->loader->add_action( 'woocommerce_order_status_refunded', $woocommerce_public, 'update_entity' );
+		$this->loader->add_action( 'woocommerce_order_status_processing', $woocommerce_public, 'after_order_status_changed' );
+		$this->loader->add_action( 'woocommerce_order_status_completed', $woocommerce_public, 'after_order_status_changed' );
+		$this->loader->add_action( 'woocommerce_order_status_refunded', $woocommerce_public, 'after_order_status_changed' );
 		$this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $woocommerce_public, 'add_unsubscribe_button',10, 2 );
 		$this->loader->add_action( 'woocommerce_after_account_orders', $woocommerce_public, 'add_unsubscribe_all_button' );
 		$this->loader->add_filter( 'query_vars', $woocommerce_public, 'add_query_vars', 0 );

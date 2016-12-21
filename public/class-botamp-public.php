@@ -32,21 +32,21 @@ class Botamp_Public {
 				}
 			}
 
-			if ( ! empty( $entity_id = get_post_meta( $post_id, $this->option('entity_id'), true ) ) ) {
+			if ( ! empty( $entity_id = get_post_meta( $post_id, $this->option( 'entity_id' ), true ) ) ) {
 				try {
 					$response = $this->botamp->entities->get( $entity_id );
 					$this->botamp->entities->update( $entity_id, $params );
 					$this->set_auth_status( 'ok' );
 				} catch (Botamp\Exceptions\NotFound $e) {
 					$response = $this->botamp->entities->create( $params );
-					update_post_meta( $post_id, $this->option('entity_id'), $response->getBody()['data']['id']);
+					update_post_meta( $post_id, $this->option( 'entity_id' ), $response->getBody()['data']['id'] );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					$this->set_auth_status( 'unauthorized' );
 				}
 			} else {
 				try {
 					$response = $this->botamp->entities->create( $params );
-					add_post_meta( $post_id, $this->option('entity_id'), $response->getBody()['data']['id'] );
+					add_post_meta( $post_id, $this->option( 'entity_id' ), $response->getBody()['data']['id'] );
 					$this->set_auth_status( 'ok' );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					$this->set_auth_status( 'unauthorized' );
@@ -57,7 +57,7 @@ class Botamp_Public {
 
 	public function delete_entity( $post_id ) {
 		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
-		  	&& ! empty( $entity_id = get_post_meta( $post_id, $this->option('entity_id'), true ) ) ) {
+		  	&& ! empty( $entity_id = get_post_meta( $post_id, $this->option( 'entity_id' ), true ) ) ) {
 			try {
 				$this->botamp->entities->delete( $entity_id );
 				$this->set_auth_status( 'ok' );
@@ -71,8 +71,8 @@ class Botamp_Public {
 		if ( ! in_array( $auth_status, [ 'ok', 'unauthorized' ] ) ) {
 			return;
 		}
-		if ( get_transient( $this->option('auth_status') ) !== $auth_status  ) {
-			set_transient( $this->option('auth_status'), $auth_status, HOUR_IN_SECONDS );
+		if ( get_transient( $this->option( 'auth_status' ) ) !== $auth_status  ) {
+			set_transient( $this->option( 'auth_status' ), $auth_status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -80,8 +80,8 @@ class Botamp_Public {
 		if ( ! in_array( $operation_status, [ 'ok', 'not_ok' ] ) ) {
 			return;
 		}
-		if ( get_transient( $this->option('operation_status') ) !== $operation_status ) {
-			set_transient( $this->option('operation_status'), $operation_status, HOUR_IN_SECONDS );
+		if ( get_transient( $this->option( 'operation_status' ) ) !== $operation_status ) {
+			set_transient( $this->option( 'operation_status' ), $operation_status, HOUR_IN_SECONDS );
 		}
 	}
 

@@ -1,12 +1,12 @@
 <?php
 
 trait Option {
-    private function option( $option_suffix ) {
-        return 'botamp_' . $option_suffix;
-    }
+	private function option( $option_suffix ) {
+		return 'botamp_' . $option_suffix;
+	}
 
-    private function get_option( $option_suffix ) {
-        $defaults = [
+	private function get_option( $option_suffix ) {
+		$defaults = [
 		'api_key' => '',
 		'post_type' => 'post',
 		'entity_description' => 'post_content',
@@ -17,8 +17,8 @@ trait Option {
 
 		$option = get_option( $this->option( $option_suffix ) );
 
-        return (false !== $option) ? $option : $defaults[ $option_suffix ];
-    }
+		return (false !== $option) ? $option : $defaults[ $option_suffix ];
+	}
 }
 
-?>
+
