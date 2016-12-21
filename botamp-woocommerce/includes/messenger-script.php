@@ -1,5 +1,5 @@
 <?php
-    $messenger_script = "<script>
+	$messenger_script = "<script>
             window.fbAsyncInit = function() {
                 FB.init({
                   appId      : '%1\$s',
@@ -24,4 +24,4 @@
           color='blue'
           size='standard'>
         </div></div>";
-?>
+
