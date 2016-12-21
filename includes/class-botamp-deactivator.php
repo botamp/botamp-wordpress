@@ -29,7 +29,8 @@ class Botamp_Deactivator {
 	 * @since    1.0.0
 	 */
 	public static function deactivate() {
-
+		add_rewrite_endpoint( 'botamp_order_unsubscribe', EP_ROOT | EP_PAGES );
+		flush_rewrite_rules();
 	}
 
 }

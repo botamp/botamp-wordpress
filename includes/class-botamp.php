@@ -73,6 +73,10 @@ class Botamp {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
+		if ( $this->woocommerce_activated() ) {
+			$this->define_woocommerce_admin_hooks();
+			$this->define_woocommerce_public_hooks();
+		}
 		$this->define_public_hooks();
 
 	}
@@ -112,6 +116,10 @@ class Botamp {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-botamp-admin.php';
 
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'botamp-woocommerce/class-botamp-woocommerce-admin.php';
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'botamp-woocommerce/class-botamp-woocommerce-public.php';
+
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
@@ -147,16 +155,36 @@ class Botamp {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
 		$plugin_admin = new Botamp_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'add_option_botamp_api_key', $plugin_admin, 'set_botamp' );
+		$this->loader->add_action( 'update_option_botamp_api_key', $plugin_admin, 'set_botamp' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
-		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_setting' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
 		$this->loader->add_action( 'wp_ajax_botamp_import', $plugin_admin, 'ajax_import_post' );
+	}
 
+	private function define_woocommerce_admin_hooks() {
+		$woocommerce_admin = new Botamp_Woocommerce_Admin( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action( 'admin_init', $woocommerce_admin, 'register_settings' );
+	}
+
+	private function define_woocommerce_public_hooks() {
+		$woocommerce_public = new Botamp_Woocommerce_Public( $this->get_plugin_name(), $this->get_version() );
+
+		$this->loader->add_action( 'woocommerce_after_order_notes', $woocommerce_public, 'add_messenger_widget' );
+		$this->loader->add_action( 'woocommerce_checkout_order_processed', $woocommerce_public, 'after_checkout' );
+		$this->loader->add_action( 'woocommerce_order_status_processing', $woocommerce_public, 'after_order_status_changed' );
+		$this->loader->add_action( 'woocommerce_order_status_completed', $woocommerce_public, 'after_order_status_changed' );
+		$this->loader->add_action( 'woocommerce_order_status_refunded', $woocommerce_public, 'after_order_status_changed' );
+		$this->loader->add_filter( 'woocommerce_my_account_my_orders_actions', $woocommerce_public, 'add_unsubscribe_button',10, 2 );
+		$this->loader->add_action( 'woocommerce_after_account_orders', $woocommerce_public, 'add_unsubscribe_all_button' );
+		$this->loader->add_filter( 'query_vars', $woocommerce_public, 'add_query_vars', 0 );
+		$this->loader->add_action( 'woocommerce_account_botamp_order_unsubscribe_endpoint', $woocommerce_public, 'unsubscribe' );
 	}
 
 	/**
@@ -217,6 +245,10 @@ class Botamp {
 	 */
 	public function get_version() {
 		return $this->version;
+	}
+
+	private function woocommerce_activated() {
+	 	return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) );
 	}
 
 }

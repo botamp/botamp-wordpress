@@ -1,22 +1,22 @@
 <?php
 
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/option.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/botamp-client.php';
 
 class Botamp_Public {
 
+	use Option;
+	use Botamp_Client;
+
 	private $plugin_name;
-
 	private $version;
-
 	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->botamp = new Botamp\Client( get_option( 'botamp_api_key' ) );
-		if ( defined( 'BOTAMP_API_BASE' ) ) {
-			$this->botamp->setApiBase( BOTAMP_API_BASE );
-		}
+		$this->botamp = $this->get_botamp();
 	}
 
 	public function enqueue_styles() {
@@ -28,7 +28,7 @@ class Botamp_Public {
 	}
 
 	public function create_or_update_entity( $post_id ) {
-		if ( get_post_type( $post_id ) === get_option( 'botamp_post_type' )
+		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
 				&& get_post_status( $post_id ) === 'publish' ) {
 
 			$params = $this->get_fields_values( $post_id );
@@ -41,23 +41,21 @@ class Botamp_Public {
 				}
 			}
 
-			if ( ! empty( $entity_id = get_post_meta( $post_id, 'botamp_entity_id', true ) ) ) {
+			if ( ! empty( $entity_id = get_post_meta( $post_id, $this->option( 'entity_id' ), true ) ) ) {
 				try {
 					$response = $this->botamp->entities->get( $entity_id );
 					$this->botamp->entities->update( $entity_id, $params );
 					$this->set_auth_status( 'ok' );
 				} catch (Botamp\Exceptions\NotFound $e) {
 					$response = $this->botamp->entities->create( $params );
-					update_post_meta( $post_id,
-						'botamp_entity_id',
-					$response->getBody()['data']['id']);
+					update_post_meta( $post_id, $this->option( 'entity_id' ), $response->getBody()['data']['id'] );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					$this->set_auth_status( 'unauthorized' );
 				}
 			} else {
 				try {
 					$response = $this->botamp->entities->create( $params );
-					add_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
+					add_post_meta( $post_id, $this->option( 'entity_id' ), $response->getBody()['data']['id'] );
 					$this->set_auth_status( 'ok' );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					$this->set_auth_status( 'unauthorized' );
@@ -68,8 +66,8 @@ class Botamp_Public {
 	}
 
 	public function delete_entity( $post_id ) {
-		if ( get_post_type( $post_id ) === get_option( 'botamp_post_type' )
-		  	&& ! empty( $entity_id = get_post_meta( $post_id, 'botamp_entity_id', true ) ) ) {
+		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
+		  	&& ! empty( $entity_id = get_post_meta( $post_id, $this->option( 'entity_id' ), true ) ) ) {
 			try {
 				$this->botamp->entities->delete( $entity_id );
 				$this->set_auth_status( 'ok' );
@@ -83,8 +81,8 @@ class Botamp_Public {
 		if ( ! in_array( $auth_status, [ 'ok', 'unauthorized' ] ) ) {
 			return;
 		}
-		if ( get_transient( 'botamp_auth_status' ) !== $auth_status  ) {
-			set_transient( 'botamp_auth_status', $auth_status, HOUR_IN_SECONDS );
+		if ( get_transient( $this->option( 'auth_status' ) ) !== $auth_status  ) {
+			set_transient( $this->option( 'auth_status' ), $auth_status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -92,8 +90,8 @@ class Botamp_Public {
 		if ( ! in_array( $operation_status, [ 'ok', 'not_ok' ] ) ) {
 			return;
 		}
-		if ( get_transient( 'botamp_operation_status' ) !== $operation_status ) {
-			set_transient( 'botamp_operation_status', $operation_status, HOUR_IN_SECONDS );
+		if ( get_transient( $this->option( 'operation_status' ) ) !== $operation_status ) {
+			set_transient( $this->option( 'operation_status' ), $operation_status, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -103,7 +101,7 @@ class Botamp_Public {
 		$values = [ 'entity_type' => 'article' ];
 
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
-			switch ( $option = get_option( 'botamp_entity_' . $field ) ) {
+			switch ( $option = $this->get_option( 'entity_' . $field ) ) {
 				case 'post_title':
 					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
 					break;

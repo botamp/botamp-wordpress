@@ -1,14 +1,18 @@
 <?php
 
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/option.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/botamp-client.php';
 
 class Botamp_Admin {
 
+	use Option;
+	use Botamp_Client;
+
 	private $plugin_name;
-
 	private $version;
-
 	private $fields;
+	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
@@ -22,10 +26,11 @@ class Botamp_Admin {
 		 'post_thumbnail_url',
 		 'post_permalink',
 		];
-
 		$post_metas = $wpdb->get_col( "select distinct meta_key from {$wpdb->prefix}postmeta
 										where meta_key not like 'botamp_%'", 0 );
 		$this->fields = array_merge( $this->fields, $post_metas );
+
+		$this->botamp = $this->get_botamp();
 	}
 
 	public function enqueue_styles() {
@@ -64,16 +69,13 @@ class Botamp_Admin {
 			$html = '<div class="notice notice-warning is-dismissible"> <p>';
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
+			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			echo $html;
 		} else {
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
 				try {
-					$botamp = new Botamp\Client( $api_key );
-					if ( defined( 'BOTAMP_API_BASE' ) ) {
-						$botamp->setApiBase( BOTAMP_API_BASE );
-					}
-					$botamp->entities->all();
+					$this->botamp->me->get();
 					set_transient( 'botamp_auth_status', 'ok', HOUR_IN_SECONDS );
 				} catch (Botamp\Exceptions\Unauthorized $e) {
 					set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
@@ -88,10 +90,10 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				echo $html;
 			}
 		}
+
 	}
 
 	public function add_options_page() {
-
 		$this->plugin_screen_hook_suffix = add_options_page(
 			__( 'Botamp Application Settings', 'botamp' ),
 			__( 'Botamp', 'botamp' ),
@@ -105,7 +107,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		include_once 'partials/botamp-admin-display.php';
 	}
 
-	public function register_setting() {
+	public function register_settings() {
 		// Add a General section
 		add_settings_section(
 			$this->option( 'general' ),
@@ -272,25 +274,5 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			default:
 				return $field;
 		}
-	}
-
-	private function option( $option_suffix ) {
-		return 'botamp_' . $option_suffix;
-	}
-
-
-	private function get_option( $name ) {
-		$defaults = [
-		 'api_key' => '',
-		 'post_type' => 'post',
-		 'entity_description' => 'post_content',
-		 'entity_image_url' => 'post_thumbnail_url',
-		 'entity_title' => 'post_title',
-		 'entity_url' => 'post_permalink',
-		];
-
-		$option = get_option( $this->option( $name ) );
-
-		return (false !== $option) ? $option : $defaults[ $name ];
 	}
 }
