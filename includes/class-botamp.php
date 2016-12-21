@@ -155,7 +155,6 @@ class Botamp {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-
 		$plugin_admin = new Botamp_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'add_option_botamp_api_key', $plugin_admin, 'set_botamp' );
@@ -165,6 +164,7 @@ class Botamp {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
+		$this->loader->add_action( 'wp_ajax_botamp_import', $plugin_admin, 'ajax_import_post' );
 	}
 
 	private function define_woocommerce_admin_hooks() {

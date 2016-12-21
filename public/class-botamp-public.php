@@ -23,12 +23,14 @@ class Botamp_Public {
 	public function create_or_update_entity( $post_id ) {
 		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
 				&& get_post_status( $post_id ) === 'publish' ) {
-			$params = get_fields_values( $post_id );
-			foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
+
+			$params = $this->get_fields_values( $post_id );
+
+			foreach ( [ 'description', 'url', 'title' ] as $field ) {
 				if ( ! isset( $params[ $field ] )
 					|| empty( $params[ $field ] )
 					|| false == $params[ $field ] ) {
-						return;
+						return false;
 				}
 			}
 
@@ -52,6 +54,7 @@ class Botamp_Public {
 					$this->set_auth_status( 'unauthorized' );
 				}
 			}
+			return true;
 		}
 	}
 
@@ -87,7 +90,9 @@ class Botamp_Public {
 
 	private function get_fields_values( $post_id ) {
 		$post = get_post( $post_id, ARRAY_A );
-		$values = [];
+
+		$values = [ 'entity_type' => 'article' ];
+
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
 			switch ( $option = $this->get_option( 'entity_' . $field ) ) {
 				case 'post_title':

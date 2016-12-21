@@ -15,7 +15,6 @@ class Botamp_Admin {
 	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
@@ -32,6 +31,28 @@ class Botamp_Admin {
 		$this->fields = array_merge( $this->fields, $post_metas );
 
 		$this->botamp = $this->get_botamp();
+	}
+
+	public function import_all_posts() {
+		include_once 'partials/botamp-admin-display-import.php';
+	}
+
+	public function ajax_import_post() {
+		// @codingStandardsIgnoreStart
+		@error_reporting( 0 ); // Don't break the JSON result
+		// @codingStandardsIgnoreEnd
+
+		header( 'Content-type: application/json' );
+
+		$post_id = (int) $_REQUEST['post_id'];
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-botamp-public.php';
+		$plugin_public = new Botamp_Public( $this->plugin_name, $this->version );
+		if ( $plugin_public->create_or_update_entity( $post_id ) === true ) {
+			die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
+		} else {
+			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
+		}
 	}
 
 	public function enqueue_styles() {
@@ -80,7 +101,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			$this->plugin_name,
 			array( $this, 'display_options_page' )
 		);
-
 	}
 
 	public function display_options_page() {
@@ -166,7 +186,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		register_setting( $this->plugin_name, $this->option( 'entity_image_url' ) );
 		register_setting( $this->plugin_name, $this->option( 'entity_title' ) );
 		register_setting( $this->plugin_name, $this->option( 'entity_url' ) );
-
 	}
 
 	public function general_cb() {
@@ -200,7 +219,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$html .= '</select>';
 
 		echo $html;
-
 	}
 
 	public function entity_description_cb() {
@@ -208,7 +226,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function entity_image_url_cb() {
-		echo $this->print_field_select( 'entity_image_url' );
+		$fields = [ '', 'post_thumbnail_url' ];
+
+		echo $this->print_field_select( 'entity_image_url', $fields );
 	}
 
 	public function entity_title_cb() {
@@ -219,11 +239,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo $this->print_field_select( 'entity_url' );
 	}
 
-	private function print_field_select( $option ) {
+	private function print_field_select( $option, $fields = [] ) {
 		$option_value = $this->get_option( $option );
 
-		$html = '<select name = "' . $this->option( $option ) . ' " class = "regular-list" >';
-		foreach ( $this->fields as $field ) {
+		$fields = empty( $fields ) ? $this->fields : $fields;
+
+		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
+		foreach ( $fields as $field ) {
 			if ( $option_value === $field ) {
 				$html .= "<option value = '$field' selected='true'>"
 				. $this->field_name( $field )

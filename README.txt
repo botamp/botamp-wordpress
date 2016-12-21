@@ -1,9 +1,9 @@
 === Botamp ===
 Contributors: Botamp
 Tags: botamp, bot, bot creation, chatbot, chatbots, bots, bot platform, messaging, messenger, newsletter
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+Requires at least: 3.7
+Tested up to: 4.6
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
