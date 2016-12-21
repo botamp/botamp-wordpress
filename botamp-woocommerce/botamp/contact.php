@@ -1,14 +1,14 @@
 <?php
+require_once 'botamp-api-resource.php';
 
-class Contact {
+class Contact extends Botamp_Api_Resource {
 
-	public static function get( $botamp, $contact_ref ) {
+	public static function get( $contact_ref ) {
 		try {
-			$contact = $botamp->contacts->get( $contact_ref );
+			$contact = parent::botamp()->contacts->get( $contact_ref );
 			return $contact;
 		} catch (Botamp\Exceptions\NotFound $ex) {
 			return false;
 		}
 	}
 }
-
