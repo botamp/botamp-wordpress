@@ -1,0 +1,6 @@
+composer.phar
+composer.lock
+clover.xml
+/vendor/
+demo
+.git

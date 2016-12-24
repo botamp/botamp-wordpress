@@ -1,5 +1,5 @@
 {
   "require" : {
-    "botamp/botamp-php" : "@dev"
+    "botamp/botamp-php" : "~1.0"
   }
 }
