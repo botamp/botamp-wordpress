@@ -8,14 +8,14 @@
  * that starts the plugin.
  *
  * @link              support@botamp.com
- * @since             1.0.0
+ * @since             1.1.0
  * @package           Botamp
  *
  * @wordpress-plugin
  * Plugin Name:       botamp
  * Plugin URI:        https://botamp.com
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            Botamp, Inc. <support@botamp.com>
  * Author URI:        support@botamp.com
  * License:           GPL-2.0+
@@ -63,7 +63,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-botamp.php';
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    1.0.0
+ * @since    1.1.0
  */
 function run_botamp() {
 
