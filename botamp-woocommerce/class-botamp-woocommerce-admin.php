@@ -34,7 +34,7 @@ class Botamp_Woocommerce_Admin {
 
 		$html = '<input type="checkbox" name="' . $this->option( 'order_notifications' ) . '" value="enabled" ' .
 		checked( 'enabled', $current_state, false ) . '/>';
-			$html .= '<label for="' . $this->option( 'order_notifications' ) . '"> Send order notifications to users </label>';
+			$html .= '<label for="' . $this->option( 'order_notifications' ) . '"> Send order notifications to customers </label>';
 
 		echo $html;
 
