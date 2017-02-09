@@ -1,11 +1,11 @@
 <?php
-require_once 'botamp-api-resource.php';
+require_once 'abstract-resource.php';
 
-class Entity extends Botamp_Api_Resource {
+class OrderEntity extends AbstractResource {
 
-	public static function create( $order_id ) {
+	public function create( $order_id ) {
 		$order = new WC_Order( $order_id );
-		$order_meta = self::get_order_meta( $order );
+		$order_meta = $this->get_order_meta( $order );
 
 		$entity_attributes = [
 			'title' => $order_meta['order_number'] . ' - ' . $order_meta['recipient_name'],
@@ -15,12 +15,10 @@ class Entity extends Botamp_Api_Resource {
 			'meta' => $order_meta,
 		];
 
-		$entity = parent::botamp()->entities->create( $entity_attributes );
-
-		return $entity;
+		return $this->botamp->entities->create( $entity_attributes );
 	}
 
-	public static function update( $order_id ) {
+	public function update( $order_id ) {
 		$subscription_id = get_post_meta( $order_id, 'botamp_subscription_id', true );
 
 		if ( empty( $subscription_id ) ) {
@@ -29,21 +27,19 @@ class Entity extends Botamp_Api_Resource {
 
 		$order = new WC_Order( $order_id );
 
-		$subscription = parent::botamp()->subscriptions->get( $subscription_id );
+		$subscription = $this->botamp->subscriptions->get( $subscription_id );
 		$entity_id = $subscription->getBody()['data']['attributes']['entity_id'];
-		$entity = parent::botamp()->entities->get( $entity_id );
+		$entity = $this->botamp->entities->get( $entity_id );
 
 		$entity_attributes = $entity->getBody()['data']['attributes'];
 		$entity_attributes['status'] = $order->get_status();
-		$entity_attributes['meta'] = self::get_order_meta( $order );
+		$entity_attributes['meta'] = $this->get_order_meta( $order );
 
-		$entity = parent::botamp()->entities->update( $entity_id, $entity_attributes );
-
-		return $entity;
+		return $this->botamp->entities->update( $entity_id, $entity_attributes );
 	}
 
 
-	private static function get_order_meta( $order_id ) {
+	private function get_order_meta( $order_id ) {
 		$order = new WC_Order( $order_id );
 
 		$order_meta = [
@@ -78,7 +74,7 @@ class Entity extends Botamp_Api_Resource {
 				'quantity' => $item['qty'],
 				'price' => $item['line_subtotal'],
 				'currency' => $order->order_currency,
-				'image_url' => self::get_product_image_url( $item['product_id'] ),
+				'image_url' => $this->get_product_image_url( $item['product_id'] ),
 			];
 		}
 
@@ -99,7 +95,7 @@ class Entity extends Botamp_Api_Resource {
 		return $order_meta;
 	}
 
-	private static function get_product_image_url( $product_id ) {
+	private function get_product_image_url( $product_id ) {
 		$product = new WC_Product( $product_id );
 		$attachment_id = $product->get_gallery_attachment_ids()[0];
 		return wp_get_attachment_image_src( $attachment_id )['url'];

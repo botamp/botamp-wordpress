@@ -1,18 +1,17 @@
 <?php
 
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/option.php';
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/botamp-client.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/option-helper.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/proxy-helper.php';
 
 class Botamp_Admin {
 
-	use Option;
-	use Botamp_Client;
+	use OptionHelper;
+	use ProxyHelper;
 
 	private $plugin_name;
 	private $version;
 	private $fields;
-	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
@@ -29,8 +28,6 @@ class Botamp_Admin {
 		$post_metas = $wpdb->get_col( "select distinct meta_key from {$wpdb->prefix}postmeta
 										where meta_key not like 'botamp_%'", 0 );
 		$this->fields = array_merge( $this->fields, $post_metas );
-
-		$this->botamp = $this->get_botamp();
 	}
 
 	public function enqueue_styles() {
@@ -54,9 +51,7 @@ class Botamp_Admin {
 
 		$post_id = (int) $_REQUEST['post_id'];
 
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-botamp-public.php';
-		$plugin_public = new Botamp_Public( $this->plugin_name, $this->version );
-		if ( $plugin_public->create_or_update_entity( $post_id ) === true ) {
+		if ( $this->create_or_update_entity( $post_id ) === true ) {
 			die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
 		} else {
 			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
@@ -69,18 +64,11 @@ class Botamp_Admin {
 			$html = '<div class="notice notice-warning is-dismissible"> <p>';
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 			$html .= '</p> </div>';
-			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			echo $html;
 		} else {
 			$auth_status = get_transient( 'botamp_auth_status' );
 			if ( false === $auth_status ) {
-				try {
-					$this->botamp->me->get();
-					set_transient( 'botamp_auth_status', 'ok', HOUR_IN_SECONDS );
-				} catch (Botamp\Exceptions\Unauthorized $e) {
-					set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
-				}
-
+				$this->get_proxy( 'me' )->get();
 				$this->display_warning_message();
 			} elseif ( 'unauthorized' === $auth_status ) {
 				$html = '<div class="notice notice-warning is-dismissible"> <p>';
@@ -239,6 +227,51 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo $this->print_field_select( 'entity_url' );
 	}
 
+	public function create_or_update_entity( $post_id ) {
+		if ( ! ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
+				&& get_post_status( $post_id ) === 'publish' ) ) {
+			return;
+		}
+
+		$params = $this->get_fields_values( $post_id );
+		foreach ( [ 'description', 'url', 'title' ] as $field ) {
+			if ( ! isset( $params[ $field ] )
+				|| empty( $params[ $field ] )
+				|| false == $params[ $field ] ) {
+					return false;
+			}
+		}
+
+		$product_entity_proxy = $this->get_proxy( 'product_entity' );
+
+		if ( ! empty( $entity_id = $this->get_post_botamp_id( $post_id ) ) ) {
+			$response = $product_entity_proxy->update( $entity_id, $params );
+			if ( false !== $response ) {
+				update_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
+			}
+		} else {
+			$response = $product_entity_proxy->create( $params );
+			if ( false !== $response ) {
+				add_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
+			}
+		}
+	}
+
+	public function on_post_delete( $post_id ) {
+		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
+			&& ! empty( $entity_id = $this->get_post_botamp_id( $post_id ) ) ) {
+			$this->get_proxy( 'product_entity' )->delete( $entity_id );
+			delete_post_meta( $post_id, 'botamp_entity_id' );
+		}
+	}
+
+	public function on_api_key_change( $old_api_key, $new_api_key ) {
+		$me_proxy = $this->get_proxy( 'me' );
+		$me_proxy->set_botamp_client( $new_api_key );
+		$me_proxy->get();
+	}
+
+
 	private function print_field_select( $option, $fields = [] ) {
 		$option_value = $this->get_option( $option );
 
@@ -274,5 +307,41 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			default:
 				return $field;
 		}
+	}
+
+	private function get_post_botamp_id( $post_id ) {
+		return get_post_meta( $post_id, 'botamp_entity_id', true );
+	}
+
+	private function get_fields_values( $post_id ) {
+		$post = get_post( $post_id, ARRAY_A );
+
+		$values = [ 'entity_type' => 'article' ];
+
+		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
+			switch ( $option = $this->get_option( 'entity_' . $field ) ) {
+				case 'post_title':
+					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
+					break;
+				case 'post_excerpt':
+					$values[ $field ] = apply_filters( 'get_the_excerpt', $post['post_excerpt'], $post_id );
+					break;
+				case 'post_content':
+					$values[ $field ] = get_post_field( 'post_content', $post_id );
+					break;
+				case 'post_permalink';
+					$values[ $field ] = get_the_permalink( $post_id );
+					break;
+				case 'post_thumbnail_url';
+					$values[ $field ] = get_the_post_thumbnail_url( $post_id, 'full' );
+					break;
+				case '';
+					break;
+				default:
+					$values[ $field ] = get_post_meta( $post_id, $option, true );
+					break;
+			}
+		}
+		return $values;
 	}
 }
