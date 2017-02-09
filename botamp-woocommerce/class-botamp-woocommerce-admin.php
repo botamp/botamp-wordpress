@@ -1,10 +1,10 @@
 <?php
 
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/option.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/option-helper.php';
 
 class Botamp_Woocommerce_Admin {
 
-	use Option;
+	use OptionHelper;
 
 	private $plugin_name;
 
@@ -40,4 +40,3 @@ class Botamp_Woocommerce_Admin {
 
 	}
 }
-

@@ -73,12 +73,11 @@ class Botamp {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
+		$this->define_public_hooks();
 		if ( $this->woocommerce_activated() ) {
 			$this->define_woocommerce_admin_hooks();
 			$this->define_woocommerce_public_hooks();
 		}
-		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -157,14 +156,17 @@ class Botamp {
 	private function define_admin_hooks() {
 		$plugin_admin = new Botamp_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'add_option_botamp_api_key', $plugin_admin, 'set_botamp' );
-		$this->loader->add_action( 'update_option_botamp_api_key', $plugin_admin, 'set_botamp' );
+		$this->loader->add_action( 'update_option_botamp_api_key', $plugin_admin, 'on_api_key_change', 10, 2 );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_options_page' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'register_settings' );
 		$this->loader->add_action( 'admin_notices', $plugin_admin, 'display_warning_message' );
 		$this->loader->add_action( 'wp_ajax_botamp_import', $plugin_admin, 'ajax_import_post' );
+		$this->loader->add_action( 'save_post', $plugin_admin, 'create_or_update_entity' );
+		$this->loader->add_action( 'wp_trash_post', $plugin_admin, 'on_post_delete' );
+		$this->loader->add_action( 'before_delete_post', $plugin_admin, 'on_post_delete' );
+		$this->loader->add_action( 'untrashed_post', $plugin_admin, 'create_or_update_entity' );
 	}
 
 	private function define_woocommerce_admin_hooks() {
@@ -200,11 +202,6 @@ class Botamp {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action( 'save_post', $plugin_public, 'create_or_update_entity' );
-		$this->loader->add_action( 'wp_trash_post', $plugin_public, 'delete_entity' );
-		$this->loader->add_action( 'before_delete_post', $plugin_public, 'delete_entity' );
-		$this->loader->add_action( 'untrashed_post', $plugin_public, 'create_or_update_entity' );
-
 	}
 
 	/**

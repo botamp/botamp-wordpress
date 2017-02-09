@@ -1,25 +1,19 @@
 <?php
 
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/option.php';
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'traits/botamp-client.php';
-require 'botamp/entity.php';
-require 'botamp/contact.php';
-require 'botamp/subscription.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/option-helper.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/proxy-helper.php';
 
 class Botamp_Woocommerce_Public {
 
-	use Option;
-	use Botamp_Client;
+	use OptionHelper;
+	use ProxyHelper;
 
 	private $plugin_name;
 	private $version;
-	private $botamp;
 
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
-		$this->botamp = $this->get_botamp();
 	}
 
 	public function add_messenger_widget( $checkout ) {
@@ -27,7 +21,7 @@ class Botamp_Woocommerce_Public {
 			return;
 		}
 
-		$page_attributes = $this->botamp->me->get()->getBody()['data']['attributes'];
+		$page_attributes = $this->get_proxy( 'me' )->get()->getBody()['data']['attributes'];
 
 		$ref = uniqid( "botamp_{$_SERVER['HTTP_HOST']}_", true );
 
@@ -36,20 +30,18 @@ class Botamp_Woocommerce_Public {
 
 		require 'includes/messenger-script.php';
 
-		printf( $messenger_script, $page_attributes['facebook_app_id'],
-			$page_attributes['facebook_id'],
-		$ref );
+		printf( $messenger_script, $page_attributes['facebook_app_id'], $page_attributes['facebook_id'], $ref );
 	}
 
 	public function after_checkout( $order_id ) {
-		$contact = Contact::get( $_POST['botamp_contact_ref'] );
+		$contact = $this->get_proxy( 'contact' )->get( $_POST['botamp_contact_ref'] );
 		if ( false === $contact ) {
 			return;
 		}
 
-		$entity = Entity::create( $order_id );
+		$entity = $this->get_proxy( 'order_entity' )->create( $order_id );
 
-		$subscription = Subscription::create( $entity, $contact );
+		$subscription = $this->get_proxy( 'subscription' )->create( $entity, $contact );
 
 		add_post_meta( $order_id, 'botamp_subscription_id', $subscription->getBody()['data']['id'] );
 	}
@@ -61,7 +53,7 @@ class Botamp_Woocommerce_Public {
 			return;
 		}
 
-		Entity::update( $order_id );
+		$this->get_proxy( 'order_entity' )->update( $order_id );
 	}
 
 	public function add_unsubscribe_button( $actions, $order ) {
@@ -102,16 +94,18 @@ class Botamp_Woocommerce_Public {
 
 		$param = substr( $current_url, strrpos( $current_url,'/' ) + 1 );
 
+		$subscription_proxy = $this->get_proxy( 'subscription' );
+
 		if ( 'all' === $param ) {
 
 			foreach ( $this->botamp_orders() as $order_id ) {
-				Subscription::delete( $order_id );
+				$subscription_proxy->delete( $order_id );
 				delete_post_meta( $order_id, 'botamp_subscription_id' );
 			}
 
 			echo __( '<p>You have sucessfully unsubscribed from all your order notifications</p>' );
 		} else {
-			Subscription::delete( $param );
+			$subscription_proxy->delete( $param );
 			delete_post_meta( $param, 'botamp_subscription_id' );
 
 			echo __( '<p>You have sucessfully unsubscribed from your order notifications</p>' );

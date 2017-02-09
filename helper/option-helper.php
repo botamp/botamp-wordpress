@@ -1,6 +1,6 @@
 <?php
 
-trait Option {
+trait OptionHelper {
 	private function option( $option_suffix ) {
 		return 'botamp_' . $option_suffix;
 	}
@@ -20,5 +20,3 @@ trait Option {
 		return (false !== $option) ? $option : $defaults[ $option_suffix ];
 	}
 }
-
-
