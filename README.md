@@ -19,7 +19,7 @@ PHP 5.6 and later (previous PHP versions may work but untested), HHVM.
 2. Choose the post type your bot will use to respond to your customers
 3. Choose the post fields your bot will use to respond to your customers
 
-![Scrrenshot](/assets/screenshot-1.png)
+![Scrrenshot](screenshot-settings.png)
 
 ## Features
 
