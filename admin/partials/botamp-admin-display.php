@@ -16,9 +16,9 @@
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap">
 	<?php
-    	if ( isset( $_POST['action'] ) && 'import_all_posts' === $_POST['action'] ) :
-    		$this->import_all_posts();
-    	else :
+	if ( isset( $_POST['action'] ) && 'import_all_posts' === $_POST['action'] ) :
+		$this->import_all_posts();
+		else :
 	?>
 	<h2> <?php echo esc_html( get_admin_page_title() ); ?> </h2>
 
@@ -35,6 +35,6 @@
 		<?php submit_button( __( 'Import all posts' ) ); ?>
 	</form>
 	<?php
-        endif;
-    ?>
+		endif;
+	?>
 </div>
