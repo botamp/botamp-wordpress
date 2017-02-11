@@ -5,7 +5,7 @@ class AbstractResource {
 	protected $botamp;
 
 	public function __construct() {
-		$this->setBotampClient();
+		$this->set_botamp_client();
 	}
 
 	public function set_botamp_client( $api_key = '' ) {
