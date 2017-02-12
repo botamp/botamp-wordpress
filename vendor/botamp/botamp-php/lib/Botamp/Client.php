@@ -101,5 +101,6 @@ class Client
         $this->me = new ApiResource('me', $this);
         $this->subscriptions = new ApiResource('subscriptions', $this);
         $this->contacts = new ApiResource('contacts', $this);
+        $this->entityTypes = new ApiResource('entity_types', $this);
     }
 }
