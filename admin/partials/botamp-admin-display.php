@@ -25,10 +25,17 @@
 	<form action="options.php" method="post">
 
 	<?php
-		$post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
-
 		settings_fields( 'botamp_general_group' );
 		do_settings_sections( 'botamp_general_section' );
+
+		submit_button();
+	?>
+	</form>
+
+	<form action="options.php" method="post">
+
+	<?php
+		$post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
 
 		settings_fields( "botamp_{$post_type}_group" );
 		do_settings_sections( "botamp_{$post_type}_entity_section" );
