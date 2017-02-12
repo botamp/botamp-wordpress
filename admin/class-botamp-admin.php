@@ -117,17 +117,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( 'label_for' => $this->option( 'api_key' ) )
 		);
 
-		add_settings_field(
-			$this->option( 'post_type' ),
-			__( 'Post type', 'botamp' ),
-			array( $this, 'post_type_cb' ),
-			$section_page,
-			$this->option( 'general' ),
-			array( 'label_for' => $this->option( 'post_type' ) )
-		);
-
 		register_setting( $fields_group, $this->option( 'api_key' ) );
-		register_setting( $fields_group, $this->option( 'post_type' ) );
 
 		foreach ( $this->post_types as $post_type ) {
 			$this->register_settings( $post_type->name );
@@ -146,6 +136,15 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		);
 
 		add_settings_field(
+			$this->option( 'post_type' ),
+			__( 'Post type', 'botamp' ),
+			array( $this, 'post_type_cb' ),
+			$section_page,
+			$this->option( 'entity' ),
+			array( 'label_for' => $this->option( 'post_type' ) )
+		);
+
+		add_settings_field(
 			$this->option( "{$post_type_name}_entity_description" ),
 			__( 'Description', 'botamp' ),
 			array( $this, 'entity_description_cb' ),
@@ -154,7 +153,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array(
 			'label_for' => $this->option( 'entity_description' ),
 				   'post_type_name' => $post_type_name,
-			),
+			)
 		);
 
 		add_settings_field(
@@ -166,7 +165,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array(
 			'label_for' => $this->option( 'entity_image_url' ),
 			 	   'post_type_name' => $post_type_name,
-			),
+			)
 		);
 
 		add_settings_field(
@@ -178,7 +177,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array(
 			'label_for' => $this->option( 'entity_title' ),
 			 	   'post_type_name' => $post_type_name,
-			),
+			)
 		);
 
 		add_settings_field(
@@ -190,9 +189,10 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array(
 			'label_for' => $this->option( 'entity_url' ),
 			 	   'post_type_name' => $post_type_name,
-			),
+			)
 		);
 
+		register_setting( $fields_group, $this->option( 'post_type' ) );
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_description" ) );
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_image_url" ) );
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_title" ) );
