@@ -145,6 +145,17 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		);
 
 		add_settings_field(
+			$this->option( 'entity_type' ),
+			__( 'Entity type', 'botamp' ),
+			array( $this, 'entity_type_cb' ),
+			$section_page,
+			$this->option( 'entity' ),
+			array(
+				'label_for' => $this->option( 'entity_type' ),
+				 'post_type_name' => $post_type_name )
+		);
+
+		add_settings_field(
 			$this->option( "{$post_type_name}_entity_description" ),
 			__( 'Description', 'botamp' ),
 			array( $this, 'entity_description_cb' ),
@@ -228,6 +239,26 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				$html .= "<option value = '{$url}' selected='true'>{$post_type->label} </option>";
 			} else {
 				$html .= "<option value = '{$url}'>{$post_type->label}</option>";
+			}
+		}
+		$html .= '</select>';
+
+		echo $html;
+	}
+
+	public function entity_type_cb( $args ) {
+		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
+		// var_dump( $this->get_proxy('entity_type')->all()->getBody() );
+
+		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list"
+		 onchange="window.location.href=this.value">';
+		foreach ( $this->get_proxy('entity_type')->all()->getBody()['data'] as $entity_type ) {
+			$entity_type_name = $entity_type['attributes']['name'];
+			$entity_type_label = $entity_type['attributes']['singular_label'];
+			if ( $current_entity_type === $entity_type_name ) {
+				$html .= "<option value = '{$entity_type_name}' selected='true'>{$entity_type_label} </option>";
+			} else {
+				$html .= "<option value = '{$entity_type_name}'>{$entity_type_label}</option>";
 			}
 		}
 		$html .= '</select>';

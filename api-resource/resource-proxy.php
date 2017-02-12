@@ -5,6 +5,7 @@ require_once 'order-entity.php';
 require_once 'contact.php';
 require_once 'subscription.php';
 require_once 'me.php';
+require_once 'entity-type.php';
 
 class ResourceProxy {
 
@@ -18,6 +19,7 @@ class ResourceProxy {
 			'contact' => new Contact(),
 			'subscription' => new Subscription(),
 			'me' => new Me(),
+            'entity_type' => new EntityType(),
 		];
 
 		$this->current_resource = $this->resources[ $resource_code ];
