@@ -20,12 +20,12 @@ class Botamp_Woocommerce_Admin {
 			$this->option( 'order_notifications' ),
 			__( 'Order notifications', 'botamp' ),
 			array( $this, 'order_notifications_cb' ),
-			$this->plugin_name,
+			$this->option( 'general_section' ),
 			$this->option( 'general' ),
 			array( 'label_for' => $this->option( 'order_notifications' ) )
 		);
 
-		register_setting( $this->plugin_name, $this->option( 'order_notifications' ) );
+		register_setting( $this->option( 'general_group' ), $this->option( 'order_notifications' ) );
 	}
 
 

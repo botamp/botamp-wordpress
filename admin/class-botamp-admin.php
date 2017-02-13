@@ -12,10 +12,12 @@ class Botamp_Admin {
 	private $plugin_name;
 	private $version;
 	private $fields;
+	private $post_types;
 
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		$this->post_types = get_post_types( '', 'objects' );
 
 		global $wpdb;
 		$this->fields = [
@@ -95,85 +97,132 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		include_once 'partials/botamp-admin-display.php';
 	}
 
-	public function register_settings() {
-		// Add a General section
+	public function register_all_settings() {
+		$section_page = $this->option( 'general_section' );
+		$fields_group = $this->option( 'general_group' );
+
 		add_settings_section(
 			$this->option( 'general' ),
 			__( 'General', 'botamp' ),
 			array( $this, 'general_cb' ),
-			$this->plugin_name
+			$this->option( 'general_section' )
 		);
 
-		// Add a Entity section
-		add_settings_section(
-			$this->option( 'entity' ),
-			__( 'Content Mapping', 'botamp' ),
-			array( $this, 'entity_cb' ),
-			$this->plugin_name
-		);
-
-		// Add API key field
 		add_settings_field(
 			$this->option( 'api_key' ),
 			__( 'API key', 'botamp' ),
 			array( $this, 'api_key_cb' ),
-			$this->plugin_name,
+			$section_page,
 			$this->option( 'general' ),
 			array( 'label_for' => $this->option( 'api_key' ) )
 		);
 
-		// Add Post type field
+		register_setting( $fields_group, $this->option( 'api_key' ) );
+
+		foreach ( $this->post_types as $post_type ) {
+			$this->register_settings( $post_type->name );
+		}
+	}
+
+	public function register_settings( $post_type_name ) {
+		$section_page = $this->option( "{$post_type_name}_entity_section" );
+		$fields_group = $this->option( "{$post_type_name}_group" );
+
+		add_settings_section(
+			$this->option( 'entity' ),
+			__( 'Content Mapping', 'botamp' ),
+			array( $this, 'entity_cb' ),
+			$section_page
+		);
+
 		add_settings_field(
 			$this->option( 'post_type' ),
 			__( 'Post type', 'botamp' ),
 			array( $this, 'post_type_cb' ),
-			$this->plugin_name,
-			$this->option( 'general' ),
+			$section_page,
+			$this->option( 'entity' ),
 			array( 'label_for' => $this->option( 'post_type' ) )
 		);
 
 		add_settings_field(
-			$this->option( 'entity_description' ),
+			$this->option( "{$post_type_name}_sync" ),
+			__( 'Sync this post type', 'botamp' ),
+			array( $this, 'post_type_sync_cb' ),
+			$section_page,
+			$this->option( 'entity' ),
+			array(
+			'label_for' => $this->option( 'post_type_sync' ),
+			 'post_type_name' => $post_type_name,
+			)
+		);
+
+		add_settings_field(
+			$this->option( 'entity_type' ),
+			__( 'Entity type', 'botamp' ),
+			array( $this, 'entity_type_cb' ),
+			$section_page,
+			$this->option( 'entity' ),
+			array(
+				'label_for' => $this->option( 'entity_type' ),
+				 'post_type_name' => $post_type_name,
+			)
+		);
+
+		add_settings_field(
+			$this->option( "{$post_type_name}_entity_description" ),
 			__( 'Description', 'botamp' ),
 			array( $this, 'entity_description_cb' ),
-			$this->plugin_name,
+			$section_page,
 			$this->option( 'entity' ),
-			array( 'label_for' => $this->option( 'entity_description' ) )
+			array(
+			'label_for' => $this->option( 'entity_description' ),
+				   'post_type_name' => $post_type_name,
+			)
 		);
 
 		add_settings_field(
-			$this->option( 'entity_image_url' ),
+			$this->option( "{$post_type_name}_entity_image_url" ),
 			__( 'Image URL', 'botamp' ),
 			array( $this, 'entity_image_url_cb' ),
-			$this->plugin_name,
+			$section_page,
 			$this->option( 'entity' ),
-			array( 'label_for' => $this->option( 'entity_image_url' ) )
+			array(
+			'label_for' => $this->option( 'entity_image_url' ),
+			 	   'post_type_name' => $post_type_name,
+			)
 		);
 
 		add_settings_field(
-			$this->option( 'entity_title' ),
+			$this->option( "{$post_type_name}_entity_title" ),
 			__( 'Title', 'botamp' ),
 			array( $this, 'entity_title_cb' ),
-			$this->plugin_name,
+			$section_page,
 			$this->option( 'entity' ),
-			array( 'label_for' => $this->option( 'entity_title' ) )
+			array(
+			'label_for' => $this->option( 'entity_title' ),
+			 	   'post_type_name' => $post_type_name,
+			)
 		);
 
 		add_settings_field(
-			$this->option( 'entity_url' ),
+			$this->option( "{$post_type_name}_entity_url" ),
 			__( 'URL', 'botamp' ),
 			array( $this, 'entity_url_cb' ),
-			$this->plugin_name,
+			$section_page,
 			$this->option( 'entity' ),
-			array( 'label_for' => $this->option( 'entity_url' ) )
+			array(
+			'label_for' => $this->option( 'entity_url' ),
+			 	   'post_type_name' => $post_type_name,
+			)
 		);
 
-		register_setting( $this->plugin_name, $this->option( 'api_key' ) );
-		register_setting( $this->plugin_name, $this->option( 'post_type' ) );
-		register_setting( $this->plugin_name, $this->option( 'entity_description' ) );
-		register_setting( $this->plugin_name, $this->option( 'entity_image_url' ) );
-		register_setting( $this->plugin_name, $this->option( 'entity_title' ) );
-		register_setting( $this->plugin_name, $this->option( 'entity_url' ) );
+		register_setting( $fields_group, $this->option( 'post_type' ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_type" ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_sync" ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_description" ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_image_url" ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_title" ) );
+		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_url" ) );
 	}
 
 	public function general_cb() {
@@ -194,14 +243,17 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function post_type_cb() {
-		$current_post_type = $this->get_option( 'post_type' );
+		$current_post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
 
-		$html = '<select name = "' . $this->option( 'post_type' ) . '" class = "regular-list" >';
-		foreach ( get_post_types( '', 'objects' ) as $post_type ) {
+		$html = '<select name = "' . $this->option( 'post_type' ) . '"class = "regular-list"
+		 onchange="window.location.href=this.value">';
+		foreach ( $this->post_types as $post_type ) {
+			$url = add_query_arg( 'post-type', $post_type->name, admin_url( 'options-general.php?page=botamp' ) );
+
 			if ( $current_post_type === $post_type->name ) {
-				$html .= "<option value = '{$post_type->name}' selected='true'>{$post_type->label} </option>";
+				$html .= "<option value = '{$url}' selected='true'>{$post_type->label} </option>";
 			} else {
-				$html .= "<option value = '{$post_type->name}'> {$post_type->label} </option>";
+				$html .= "<option value = '{$url}'>{$post_type->label}</option>";
 			}
 		}
 		$html .= '</select>';
@@ -209,28 +261,53 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo $html;
 	}
 
-	public function entity_description_cb() {
-		echo $this->print_field_select( 'entity_description' );
+	public function post_type_sync_cb( $args ) {
+		$current_state = $this->get_option( "{$args['post_type_name']}_sync" );
+
+		echo '<input type="checkbox" name="' . $this->option( "{$args['post_type_name']}_sync" ) . '" value="enabled" ' .
+		checked( 'enabled', $current_state, false ) . '/>';
 	}
 
-	public function entity_image_url_cb() {
+	public function entity_type_cb( $args ) {
+		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
+
+		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
+		foreach ( $this->get_proxy( 'entity_type' )->all()->getBody()['data'] as $entity_type ) {
+			$entity_type_name = $entity_type['attributes']['name'];
+			$entity_type_label = $entity_type['attributes']['singular_label'];
+			if ( $current_entity_type === $entity_type_name ) {
+				$html .= "<option value = '{$entity_type_name}' selected='true'>{$entity_type_label} </option>";
+			} else {
+				$html .= "<option value = '{$entity_type_name}'>{$entity_type_label}</option>";
+			}
+		}
+		$html .= '</select>';
+
+		echo $html;
+	}
+
+	public function entity_description_cb( $args ) {
+		echo $this->print_field_select( "{$args['post_type_name']}_entity_description" );
+	}
+
+	public function entity_image_url_cb( $args ) {
 		$fields = [ '', 'post_thumbnail_url' ];
 
-		echo $this->print_field_select( 'entity_image_url', $fields );
+		echo $this->print_field_select( "{$args['post_type_name']}_entity_image_url", $fields );
 	}
 
-	public function entity_title_cb() {
-		echo $this->print_field_select( 'entity_title' );
+	public function entity_title_cb( $args ) {
+		echo $this->print_field_select( "{$args['post_type_name']}_entity_title" );
 	}
 
-	public function entity_url_cb() {
-		echo $this->print_field_select( 'entity_url' );
+	public function entity_url_cb( $args ) {
+		echo $this->print_field_select( "{$args['post_type_name']}_entity_url" );
 	}
 
 	public function create_or_update_entity( $post_id ) {
-		if ( ! ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
-				&& get_post_status( $post_id ) === 'publish' ) ) {
-			return;
+		if ( ! ( $this->get_option( get_post_type( $post_id ) . '_sync' ) === 'enabled'
+				 && get_post_status( $post_id ) === 'publish' ) ) {
+				return;
 		}
 
 		$params = $this->get_fields_values( $post_id );
@@ -315,11 +392,12 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	private function get_fields_values( $post_id ) {
 		$post = get_post( $post_id, ARRAY_A );
+		$post_type = get_post_type( $post_id );
 
-		$values = [ 'entity_type' => 'article' ];
+		$values = [ 'entity_type' => $this->get_option( "{$post_type}_entity_type" ) ];
 
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
-			switch ( $option = $this->get_option( 'entity_' . $field ) ) {
+			switch ( $option = $this->get_option( "{$post_type}_entity_{$field}" ) ) {
 				case 'post_title':
 					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
 					break;
