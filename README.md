@@ -6,10 +6,15 @@ Botamp is the best way to do marketing automation on Facebook Messenger. Run per
 
 You can sign up for a Botamp account at https://botamp.com.
 
-The Botamp plugin for WordPress makes it easy to sync your WordPress site content with Botamp.
+Messaging apps have quickly become the most popular online communication medium, more than email and social media.
+Botamp aims to help small businesses and ecommerce companies to sell their products and services in the most efficient way
+via messaging apps.
 
-It also makes it easy to enable order notifications for your customers on your Woocommerce site so that they can receive
-messages from your Facebook page whenever their order status changes.
+Botamp is a marketing automation solution that lets you broadcast personalized messages to a large number of customers,
+run polls and surveys, schedule appointments, run marketing campaigns, etc.
+It takes the proven methods from other marketing channels and adapts them to the conversational interfaces.
+
+The Botamp plugin for WordPress makes it easy to engage your customers by using content from your website.
 
 This plugin uses the [Botamp PHP SDK](https://github.com/botamp/botamp-php), to interact with the [Botamp API](https://app.botamp.com/docs/api).
 
@@ -39,4 +44,4 @@ The content on Botamp is automatically deleted whenever the corresponding post i
 By clicking on the **Import all posts** button, you can import all of your existing posts into your bot.
 
 ### Order notifications
-By enabling order notifications, your customers can opt-in to receive messages from your Facebook page whenever their order status changes.
+By enabling order notifications for Woocommerce, your customers can opt-in to receive messages from your Facebook page whenever their order status changes.
