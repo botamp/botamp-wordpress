@@ -2,7 +2,7 @@
 function get_post_type_name( $post_type ) {
 	return $post_type->name;
 }
-	$all_post_types = array_map( get_post_type_name, get_post_types( '', 'objects' ) );
+$all_post_types = array_map( get_post_type_name, get_post_types( '', 'objects' ) );
 
 function is_synced( $post_type_name ) {
 	return get_option( "botamp_{$post_type_name}_sync" ) === 'enabled';
