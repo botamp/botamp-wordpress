@@ -227,13 +227,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	public function general_cb() {
 		echo '<p>'
-			. __( 'Visit <a href="https://app.botamp.com">your bot settings page on Botamp</a> to get your API key.', 'botamp' )
+			. __( 'Visit <a href="https://app.botamp.com">your settings page on Botamp</a> to get your API key.', 'botamp' )
 			. '</p>';
 	}
 
 	public function entity_cb() {
 		echo '<p>'
-			. __( 'Choose the post fields your bot will use to respond to your customers.', 'botamp' )
+			. __( 'Choose the post fields to sync with Botamp.', 'botamp' )
 			. '</p>';
 	}
 
