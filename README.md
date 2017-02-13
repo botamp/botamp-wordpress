@@ -41,7 +41,7 @@ The content on Botamp is automatically updated whenever the corresponding post i
 The content on Botamp is automatically deleted whenever the corresponding post is deleted.
 
 ### Import all of your products
-By clicking on the **Import all posts** button, you can import all of your existing posts into your bot.
+By clicking on the **Import all posts** button, you can import all of your existing posts into Botamp.
 
 ### Order notifications
 By enabling order notifications for Woocommerce, your customers can opt-in to receive messages from your Facebook page whenever their order status changes.
