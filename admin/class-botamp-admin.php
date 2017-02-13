@@ -325,13 +325,16 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			$response = $product_entity_proxy->update( $entity_id, $params );
 			if ( false !== $response ) {
 				update_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
+				return true;
 			}
 		} else {
 			$response = $product_entity_proxy->create( $params );
 			if ( false !== $response ) {
 				add_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
+				return true;
 			}
 		}
+		return false;
 	}
 
 	public function on_post_delete( $post_id ) {

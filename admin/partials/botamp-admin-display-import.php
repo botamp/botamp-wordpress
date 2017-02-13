@@ -1,17 +1,28 @@
 <?php
-	global $wpdb;
-	$posts = $wpdb->get_col( $wpdb->prepare(
-		"SELECT $wpdb->posts.ID
-        FROM $wpdb->posts
-        WHERE $wpdb->posts.post_type = %s
-        AND $wpdb->posts.post_status = 'publish'
-        AND $wpdb->posts.ID
-        NOT IN (
-            SELECT $wpdb->postmeta.post_id
-            FROM $wpdb->postmeta
-            WHERE  $wpdb->postmeta.meta_key = 'entity_id'
-        )", $this->get_option( 'post_type' ) ) );
+function get_post_type_name( $post_type ) {
+	return $post_type->name;
+}
+	$all_post_types = array_map( get_post_type_name, get_post_types( '', 'objects' ) );
 
+function is_synced( $post_type_name ) {
+	return get_option( "botamp_{$post_type_name}_sync" ) === 'enabled';
+}
+$all_synced_post_types = join( "','", array_filter( $all_post_types, 'is_synced' ) );
+
+global $wpdb;
+// @codingStandardsIgnoreStart
+$posts = $wpdb->get_col(
+    "SELECT $wpdb->posts.ID
+    FROM $wpdb->posts
+    WHERE $wpdb->posts.post_type in ('$all_synced_post_types')
+    AND $wpdb->posts.post_status = 'publish'
+    AND $wpdb->posts.ID
+    NOT IN (
+        SELECT $wpdb->postmeta.post_id
+        FROM $wpdb->postmeta
+        WHERE  $wpdb->postmeta.meta_key = 'botamp_entity_id'
+    )");
+// @codingStandardsIgnoreEnd
 ?>
 <h3 class="title"> <?php _e( 'Importing all existing posts into your Botamp app', 'botamp' ) ?> </h3><hr>
 <p>
@@ -34,6 +45,9 @@
 	jQuery( document ).ready( function( $ ) {
 
 		var posts = [ <?php echo implode( ',', $posts ); ?> ];
+		if(posts.length === 0)
+			return;
+
 		var successCount = 0;
 		var failureCount = 0;
 		var stop = false;
