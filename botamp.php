@@ -14,7 +14,7 @@
  * @wordpress-plugin
  * Plugin Name:       botamp
  * Plugin URI:        https://botamp.com
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       Botamp plugin for Wordpress. The easiest way to sync your WordPress site content with Botamp.
  * Version:           1.1.0
  * Author:            Botamp, Inc. <support@botamp.com>
  * Author URI:        support@botamp.com
