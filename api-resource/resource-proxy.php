@@ -19,7 +19,7 @@ class ResourceProxy {
 			'contact' => new Contact(),
 			'subscription' => new Subscription(),
 			'me' => new Me(),
-            'entity_type' => new EntityType(),
+			'entity_type' => new EntityType(),
 		];
 
 		$this->current_resource = $this->resources[ $resource_code ];

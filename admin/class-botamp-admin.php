@@ -152,7 +152,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			$this->option( 'entity' ),
 			array(
 			'label_for' => $this->option( 'post_type_sync' ),
-			 'post_type_name' => $post_type_name )
+			 'post_type_name' => $post_type_name,
+			)
 		);
 
 		add_settings_field(
@@ -163,7 +164,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			$this->option( 'entity' ),
 			array(
 				'label_for' => $this->option( 'entity_type' ),
-				 'post_type_name' => $post_type_name )
+				 'post_type_name' => $post_type_name,
+			)
 		);
 
 		add_settings_field(
@@ -270,7 +272,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
-		foreach ( $this->get_proxy('entity_type')->all()->getBody()['data'] as $entity_type ) {
+		foreach ( $this->get_proxy( 'entity_type' )->all()->getBody()['data'] as $entity_type ) {
 			$entity_type_name = $entity_type['attributes']['name'];
 			$entity_type_label = $entity_type['attributes']['singular_label'];
 			if ( $current_entity_type === $entity_type_name ) {
