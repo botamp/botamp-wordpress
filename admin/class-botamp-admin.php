@@ -269,8 +269,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function entity_type_cb( $args ) {
 		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
-		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list"
-		 onchange="window.location.href=this.value">';
+		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
 		foreach ( $this->get_proxy('entity_type')->all()->getBody()['data'] as $entity_type ) {
 			$entity_type_name = $entity_type['attributes']['name'];
 			$entity_type_label = $entity_type['attributes']['singular_label'];
@@ -304,9 +303,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function create_or_update_entity( $post_id ) {
-		if ( ! ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
-				&& get_post_status( $post_id ) === 'publish' ) ) {
-			return;
+		if ( ! ( $this->get_option( get_post_type( $post_id ) . '_sync' ) === 'enabled'
+				 && get_post_status( $post_id ) === 'publish' ) ) {
+				return;
 		}
 
 		$params = $this->get_fields_values( $post_id );
@@ -391,11 +390,12 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 	private function get_fields_values( $post_id ) {
 		$post = get_post( $post_id, ARRAY_A );
+		$post_type = get_post_type( $post_id );
 
-		$values = [ 'entity_type' => 'article' ];
+		$values = [ 'entity_type' => $this->get_option( "{$post_type}_entity_type" ) ];
 
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
-			switch ( $option = $this->get_option( 'entity_' . $field ) ) {
+			switch ( $option = $this->get_option( "{$post_type}_entity_{$field}" ) ) {
 				case 'post_title':
 					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
 					break;
