@@ -156,6 +156,7 @@ class Botamp {
 	private function define_admin_hooks() {
 		$plugin_admin = new Botamp_Admin( $this->get_plugin_name(), $this->get_version() );
 
+		$this->loader->add_action( 'shutdown', $plugin_admin, 'shutdown_gracefully' );
 		$this->loader->add_action( 'update_option_botamp_api_key', $plugin_admin, 'on_api_key_change', 10, 2 );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
