@@ -351,6 +351,10 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$me_proxy->get();
 	}
 
+	public function shutdown_gracefully() {
+		echo __( 'An unexpected error happened. The Botamp plugin has been deactivated.', 'botamp' );
+		deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+	}
 
 	private function print_field_select( $option, $fields = [] ) {
 		$option_value = $this->get_option( $option );
