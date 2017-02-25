@@ -34,7 +34,8 @@ to interact with the [Botamp API](https://app.botamp.com/docs/api).
 
 == Screenshots ==
 
-1. Settings screen. Provide your API key, choose the post type to use, and match post fields with your entities fields.
+1. Settings screen. Provide your API key, choose the post type to use, and match post fields with your entities fields. Check the order notifications checkbox to enable order notifications for Woocommerce.
+2. After you enabled order notifications for Woocommerce, your customers will see at checkout a messenger opt-in button to signup for their order updates.
 
 == Installation ==
 
