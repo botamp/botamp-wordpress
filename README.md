@@ -45,3 +45,5 @@ By clicking on the **Import all posts** button, you can import all of your exist
 
 ### Order notifications
 By enabling order notifications for Woocommerce, your customers can opt-in to receive messages from your Facebook page whenever their order status changes.
+
+![Scrrenshot](order_notifications.png)
