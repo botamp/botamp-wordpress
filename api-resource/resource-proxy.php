@@ -13,6 +13,8 @@ class ResourceProxy {
 	private $current_resource;
 
 	public function __construct( $resource_code ) {
+		add_action( 'shutdown', array( $this, 'gracefully_fail' ) );
+
 		$this->resources = [
 			'product_entity' => new ProductEntity(),
 			'order_entity' => new OrderEntity(),
@@ -34,5 +36,14 @@ class ResourceProxy {
 			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			return false;
 		}
+	}
+
+	public function gracefully_fail() {
+		deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+
+		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
+		echo $shutdown_alert;
+
+		exit;
 	}
 }

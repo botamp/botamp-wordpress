@@ -272,7 +272,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
-		foreach ( $this->get_proxy( 'entity_type' )->all()->getBody()['data'] as $entity_type ) {
+		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
+		foreach ( $entity_types as $entity_type ) {
 			$entity_type_name = $entity_type['attributes']['name'];
 			$entity_type_label = $entity_type['attributes']['singular_label'];
 			if ( $current_entity_type === $entity_type_name ) {
@@ -349,11 +350,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$me_proxy = $this->get_proxy( 'me' );
 		$me_proxy->set_botamp_client( $new_api_key );
 		$me_proxy->get();
-	}
-
-	public function shutdown_gracefully() {
-		echo __( 'An unexpected error happened. The Botamp plugin has been deactivated.', 'botamp' );
-		deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
 	}
 
 	private function print_field_select( $option, $fields = [] ) {
