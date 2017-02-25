@@ -96,7 +96,7 @@ class OrderEntity extends AbstractResource {
 	}
 
 	private function get_product_image_url( $product_id ) {
-    $image_id = get_post_thumbnail_id( $product_id );
-    return wp_get_attachment_image_src( $image_id, 'single-post-thumbnail' );
+		$image_id = get_post_thumbnail_id( $product_id );
+		return wp_get_attachment_image_src( $image_id, 'single-post-thumbnail' );
 	}
 }

@@ -27,7 +27,7 @@ class Botamp_Woocommerce_Public {
 
 		echo '<input type="hidden" name="botamp_contact_ref" value="' . $ref . '">
               <div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>
-			  <span>' . __( 'Get notifications about your order' ). '</span>';
+			  <span>' . __( 'Get notifications about your order' ) . '</span>';
 
 		require 'includes/messenger-script.php';
 
