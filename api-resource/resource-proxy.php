@@ -31,6 +31,10 @@ class ResourceProxy {
 		set_transient( 'botamp_auth_status', 'ok', HOUR_IN_SECONDS );
 
 		try {
+            if($this->current_resource == $this->resources['order_entity']) {
+                if( get_option('botamp_order_entity_type_created') !== 'ok' )
+                    (new EntityType())->create_or_update();
+            }
 			return call_user_func_array( [ $this->current_resource, $method ], $arguments );
 		} catch (Botamp\Exceptions\Unauthorized $e) {
 			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
@@ -39,11 +43,14 @@ class ResourceProxy {
 	}
 
 	public function gracefully_fail() {
-		deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+        $last_error = error_get_last();
+        if ($last_error['type'] === E_ERROR) {
+            deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
 
-		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
-		echo $shutdown_alert;
+    		require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
+    		echo $shutdown_alert;
 
-		exit;
+    		exit;
+        }
 	}
 }
