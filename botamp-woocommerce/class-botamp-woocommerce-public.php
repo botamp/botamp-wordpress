@@ -26,7 +26,8 @@ class Botamp_Woocommerce_Public {
 		$ref = uniqid( "botamp_{$_SERVER['HTTP_HOST']}_", true );
 
 		echo '<input type="hidden" name="botamp_contact_ref" value="' . $ref . '">
-              <div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>';
+              <div id="notifications"><h3>' . __( 'Notifications' ) . '</h3>
+			  <span>' . __( 'Get notifications about your order' ). '</span>';
 
 		require 'includes/messenger-script.php';
 
