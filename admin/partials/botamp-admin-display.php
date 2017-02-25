@@ -5,7 +5,7 @@
  * This file is used to markup the admin-facing aspects of the plugin.
  *
  * @link       support@botamp.com
- * @since      1.2.1
+ * @since      1.2.2
  *
  * @package    Botamp
  * @subpackage Botamp/admin/partials
