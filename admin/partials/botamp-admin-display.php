@@ -31,18 +31,24 @@
 		submit_button();
 	?>
 	</form>
+    <?php
+    if( $this->get_auth_status() == 'ok' ) :
+    ?>
+    <form action="options.php" method="post">
 
-	<form action="options.php" method="post">
+    <?php
+    $post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
 
-	<?php
-		$post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
+    settings_fields( "botamp_{$post_type}_group" );
+    do_settings_sections( "botamp_{$post_type}_entity_section" );
 
-		settings_fields( "botamp_{$post_type}_group" );
-		do_settings_sections( "botamp_{$post_type}_entity_section" );
+    submit_button();
+    ?>
+    </form>
+    <?php
+        endif;
+    ?>
 
-		submit_button();
-	?>
-	</form>
 
 	<form action="" method="post">
 		<input type="hidden" name="action" value="import_all_posts">

@@ -61,26 +61,18 @@ class Botamp_Admin {
 	}
 
 	public function display_warning_message() {
-		$api_key = $this->get_option( 'api_key' );
-		if ( empty( $api_key ) ) {
-			$html = '<div class="notice notice-warning is-dismissible"> <p>';
-			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
-			$html .= '</p> </div>';
-			echo $html;
-		} else {
-			$auth_status = get_transient( 'botamp_auth_status' );
-			if ( false === $auth_status ) {
-				$this->get_proxy( 'me' )->get();
-				$this->display_warning_message();
-			} elseif ( 'unauthorized' === $auth_status ) {
-				$html = '<div class="notice notice-warning is-dismissible"> <p>';
-				$html .= sprintf( __( 'Authentication with the provided API key is not working.<br/>
-Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
-				$html .= '</p> </div>';
-				echo $html;
-			}
-		}
+        $auth_status = $this->get_auth_status();
+        $html = '<div class="notice notice-warning is-dismissible"> <p>';
 
+		if ( $auth_status == 'api_key_not_set' )
+			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
+		elseif ( $auth_status == 'unauthorized' )
+			$html .= sprintf( __( 'Authentication with the provided API key is not working.<br/>
+Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
+        else
+            return;
+
+        echo $html.= '</p> </div>';
 	}
 
 	public function add_options_page() {
@@ -119,9 +111,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		register_setting( $fields_group, $this->option( 'api_key' ) );
 
-		foreach ( $this->post_types as $post_type ) {
-			$this->register_settings( $post_type->name );
-		}
+        if( $this->get_auth_status() == 'ok' ) {
+            foreach ( $this->post_types as $post_type ) {
+                $this->register_settings( $post_type->name );
+            }
+        }
 	}
 
 	public function register_settings( $post_type_name ) {
@@ -269,7 +263,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function entity_type_cb( $args ) {
-		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
+    	$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
 		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
@@ -388,6 +382,20 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 				return $field;
 		}
 	}
+
+    private function get_auth_status() {
+        if( empty( $this->get_option( 'api_key' ) ) ) {
+            return 'api_key_not_set';
+        }
+
+        $auth_status = get_transient( 'botamp_auth_status' );
+        if( $auth_status === false ) {
+            $this->get_proxy( 'me' )->get();
+            $auth_status = get_transient( 'botamp_auth_status' );
+        }
+
+        return $auth_status;
+    }
 
 	private function get_post_botamp_id( $post_id ) {
 		return get_post_meta( $post_id, 'botamp_entity_id', true );
