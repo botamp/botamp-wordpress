@@ -22,7 +22,9 @@ class Botamp_Woocommerce_Admin {
 			array( $this, 'order_notifications_cb' ),
 			$this->option( 'general_section' ),
 			$this->option( 'general' ),
-			array( 'label_for' => $this->option( 'order_notifications' ) )
+			array(
+				'label_for' => $this->option( 'order_notifications' ),
+			)
 		);
 
 		register_setting( $this->option( 'general_group' ), $this->option( 'order_notifications' ) );

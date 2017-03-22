@@ -27,13 +27,22 @@ $posts = $wpdb->get_col(
 <h3 class="title"> <?php _e( 'Importing all existing posts into your Botamp app', 'botamp' ) ?> </h3><hr>
 <p>
 	<b>
-		<?php printf( __( 'Total Posts to import: %s', 'botamp' ), count( $posts ) ); ?><br>
+		<?php
+		// translators: The placeholder parameter is the number of posts to import
+		printf( __( 'Total Posts to import: %s', 'botamp' ), count( $posts ) );
+		?><br>
 	</b>
 	<b>
-		<?php printf( __( 'Imported Posts: %s', 'botamp' ), '<span id="successCount">0</span>' ); ?><br>
+		<?php
+		// translators: The placeholder parameter is the number of successfully imported posts
+		printf( __( 'Imported Posts: %s', 'botamp' ), '<span id="successCount">0</span>' );
+		?><br>
 	</b>
 	<b>
-		<?php printf( __( 'Failed to import: %s', 'botamp' ), '<span id="failureCount">0</span>' ); ?><br>
+		<?php
+		// translators: The placeholder parameter is number of posts failed to import
+		printf( __( 'Failed to import: %s', 'botamp' ), '<span id="failureCount">0</span>' );
+		?><br>
 	</b>
 </p>
 <h4> <?php _e( 'Debug informations' ); ?> </h4>

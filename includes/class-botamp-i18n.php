@@ -23,7 +23,7 @@
  * @subpackage Botamp/includes
  * @author     Botamp, Inc. <support@botamp.com>
  */
-class Botamp_i18n {
+class Botamp_I18n {
 
 
 	/**

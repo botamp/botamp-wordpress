@@ -12,7 +12,7 @@ class EntityType extends AbstractResource {
 		try {
 			$entity_type = $this->botamp->entityTypes->get( 'order' );
 			$this->update( $entity_type );
-		} catch (\Botamp\Exceptions\NotFound $e) {
+		} catch ( \Botamp\Exceptions\NotFound $e ) {
 			$this->create();
 		}
 

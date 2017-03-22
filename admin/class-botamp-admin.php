@@ -55,9 +55,15 @@ class Botamp_Admin {
 		$post_id = (int) $_REQUEST['post_id'];
 
 		if ( $this->create_or_update_entity( $post_id ) === true ) {
-			die( json_encode( array( 'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ) ) ) );
+			die( json_encode( array(
+				// translators: The placeholder parameter is the title of the imported post
+				'success' => sprintf( __( 'The post <i>%s</i> was successfully imported' ), get_the_title( $post_id ) ),
+			) ) );
 		} else {
-			die( json_encode( array( 'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ) ) ) );
+			die( json_encode( array(
+				// translators: The placeholder parameter is the title of the post failed to import
+				'error' => sprintf( __( 'The post <i>%s</i> failed to import' ), get_the_title( $post_id ) ),
+			) ) );
 		}
 	}
 
@@ -66,8 +72,10 @@ class Botamp_Admin {
 		$html = '<div class="notice notice-warning is-dismissible"> <p>';
 
 		if ( 'api_key_not_set' == $auth_status ) {
+			// translators: The placeholder parameter is the url to the plugin settings page
 			$html .= sprintf( __( 'Please complete the Botamp plugin installation on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 		} elseif ( 'unauthorized' == $auth_status ) {
+			// translators: The placeholder parameter is the url to the plugin settings page
 			$html .= sprintf( __( 'Authentication with the provided API key is not working.<br/>
 Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp' ), admin_url( 'options-general.php?page=botamp' ) );
 		} else { return;
@@ -107,7 +115,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( $this, 'api_key_cb' ),
 			$section_page,
 			$this->option( 'general' ),
-			array( 'label_for' => $this->option( 'api_key' ) )
+			array(
+				'label_for' => $this->option( 'api_key' ),
+			)
 		);
 
 		add_settings_field(
@@ -116,7 +126,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( $this, 'optin_cb' ),
 			$section_page,
 			$this->option( 'general' ),
-			array( 'label_for' => $this->option( 'optin' ) )
+			array(
+				'label_for' => $this->option( 'optin' ),
+			)
 		);
 
 		register_setting( $fields_group, $this->option( 'api_key' ) );
@@ -146,7 +158,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( $this, 'post_type_cb' ),
 			$section_page,
 			$this->option( 'entity' ),
-			array( 'label_for' => $this->option( 'post_type' ) )
+			array(
+				'label_for' => $this->option( 'post_type' ),
+			)
 		);
 
 		add_settings_field(
@@ -357,7 +371,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$product_entity_proxy = $this->get_proxy( 'product_entity' );
 
-		if ( ! empty( $entity_id = $this->get_post_botamp_id( $post_id ) ) ) {
+		$entity_id = $this->get_post_botamp_id( $post_id );
+		if ( ! empty( $entity_id ) ) {
 			$response = $product_entity_proxy->update( $entity_id, $params );
 			if ( false !== $response ) {
 				update_post_meta( $post_id, 'botamp_entity_id', $response->getBody()['data']['id'] );
@@ -374,8 +389,9 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function on_post_delete( $post_id ) {
+	    $entity_id = $this->get_post_botamp_id( $post_id );
 		if ( get_post_type( $post_id ) === $this->get_option( 'post_type' )
-			&& ! empty( $entity_id = $this->get_post_botamp_id( $post_id ) ) ) {
+			&& ! empty( $entity_id ) ) {
 			$this->get_proxy( 'product_entity' )->delete( $entity_id );
 			delete_post_meta( $post_id, 'botamp_entity_id' );
 		}
@@ -447,10 +463,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$post = get_post( $post_id, ARRAY_A );
 		$post_type = get_post_type( $post_id );
 
-		$values = [ 'entity_type' => $this->get_option( "{$post_type}_entity_type" ) ];
+		$values = [
+			'entity_type' => $this->get_option( "{$post_type}_entity_type" ),
+		];
 
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
-			switch ( $option = $this->get_option( "{$post_type}_entity_{$field}" ) ) {
+			$option = $this->get_option( "{$post_type}_entity_{$field}"
+			switch ( $option ) { )
 				case 'post_title':
 					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
 					break;

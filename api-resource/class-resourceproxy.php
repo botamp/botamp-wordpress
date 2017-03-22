@@ -39,7 +39,7 @@ class ResourceProxy {
 				}
 			}
 			return call_user_func_array( [ $this->current_resource, $method ], $arguments );
-		} catch (Botamp\Exceptions\Unauthorized $e) {
+		} catch ( Botamp\Exceptions\Unauthorized $e ) {
 			set_transient( 'botamp_auth_status', 'unauthorized', HOUR_IN_SECONDS );
 			return false;
 		}
