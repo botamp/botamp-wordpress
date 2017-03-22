@@ -3,6 +3,7 @@
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/option-helper.php';
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/proxy-helper.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'widgets/optin-widget.php';
 
 class Botamp_Admin {
 
@@ -227,6 +228,16 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_image_url" ) );
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_title" ) );
 		register_setting( $fields_group, $this->option( "{$post_type_name}_entity_url" ) );
+	}
+
+	public function register_widgets() {
+        $optin_widget_class = 'OptinWidget';
+
+		if ( $this->get_option( 'optin' ) ) {
+			register_widget( $optin_widget_class );
+		} else {
+            unregister_widget( $optin_widget_class );
+        }
 	}
 
 	public function general_cb() {

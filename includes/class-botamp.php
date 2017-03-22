@@ -167,6 +167,7 @@ class Botamp {
 		$this->loader->add_action( 'wp_trash_post', $plugin_admin, 'on_post_delete' );
 		$this->loader->add_action( 'before_delete_post', $plugin_admin, 'on_post_delete' );
 		$this->loader->add_action( 'untrashed_post', $plugin_admin, 'create_or_update_entity' );
+		$this->loader->add_action( 'widgets_init', $plugin_admin, 'register_widgets' );
 	}
 
 	private function define_woocommerce_admin_hooks() {
