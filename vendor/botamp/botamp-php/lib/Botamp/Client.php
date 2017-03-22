@@ -97,10 +97,11 @@ class Client
 
     private function bindResources()
     {
-        $this->entities = new ApiResource('entities', $this);
-        $this->me = new ApiResource('me', $this);
-        $this->subscriptions = new ApiResource('subscriptions', $this);
         $this->contacts = new ApiResource('contacts', $this);
+        $this->entities = new ApiResource('entities', $this);
         $this->entityTypes = new ApiResource('entity_types', $this);
+        $this->me = new ApiResource('me', $this);
+        $this->optins = new ApiResource('optins', $this);
+        $this->subscriptions = new ApiResource('subscriptions', $this);
     }
 }
