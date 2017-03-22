@@ -109,7 +109,17 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			array( 'label_for' => $this->option( 'api_key' ) )
 		);
 
+		add_settings_field(
+			$this->option( 'optin' ),
+			__( 'Optin to display', 'botamp' ),
+			array( $this, 'optin_cb' ),
+			$section_page,
+			$this->option( 'general' ),
+			array( 'label_for' => $this->option( 'optin' ) )
+		);
+
 		register_setting( $fields_group, $this->option( 'api_key' ) );
+		register_setting( $fields_group, $this->option( 'optin' ) );
 
 		if ( $this->get_auth_status() == 'ok' ) {
 			foreach ( $this->post_types as $post_type ) {
@@ -236,11 +246,37 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		echo '<input type="text" name="' . $this->option( 'api_key' ) . '" value="' . $api_key . '" class="regular-text"> ';
 	}
 
+	public function optin_cb() {
+		$current_optin = $this->get_option( 'optin' );
+
+		$html = '<select name = "' . $this->option( 'optin' ) . '"class = "regular-list">';
+
+        if ( $current_optin === false ) {
+            $html .= '<option value ="" selected="true"></option>';
+            foreach ( $this->get_proxy( 'optin' )->all()->getBody()['data'] as $optin ) {
+                $html .= "<option value = '{$optin['attributes']['name']}'>{$optin['attributes']['name']}</option>";
+            }
+        } else {
+            foreach ( $this->get_proxy( 'optin' )->all()->getBody()['data'] as $optin ) {
+    			if ( $current_optin === $optin['attributes']['name'] ) {
+    				$html .= "<option value = '{$optin['attributes']['name']}' selected='true'>{$optin['attributes']['name']}</option>";
+    			} else {
+    				$html .= "<option value = '{$optin['attributes']['name']}'>{$optin['attributes']['name']}</option>";
+    			}
+    		}
+        }
+
+		$html .= '</select>';
+
+		echo $html;
+	}
+
 	public function post_type_cb() {
 		$current_post_type = isset( $_GET['post-type'] ) ? $_GET['post-type'] : 'post';
 
 		$html = '<select name = "' . $this->option( 'post_type' ) . '"class = "regular-list"
 		 onchange="window.location.href=this.value">';
+
 		foreach ( $this->post_types as $post_type ) {
 			$url = add_query_arg( 'post-type', $post_type->name, admin_url( 'options-general.php?page=botamp' ) );
 
@@ -267,15 +303,23 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
 		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
-		foreach ( $entity_types as $entity_type ) {
-			$entity_type_name = $entity_type['attributes']['name'];
-			$entity_type_label = $entity_type['attributes']['singular_label'];
-			if ( $current_entity_type === $entity_type_name ) {
-				$html .= "<option value = '{$entity_type_name}' selected='true'>{$entity_type_label} </option>";
-			} else {
-				$html .= "<option value = '{$entity_type_name}'>{$entity_type_label}</option>";
-			}
-		}
+
+        if ( $current_entity_type === false ) {
+            $html .= '<option value="" selected="true"></option>';
+            foreach ( $entity_types as $entity_type ) {
+                $html .= "<option value = '{$entity_type['attributes']['name']}'>{$entity_type['attributes']['singular_label']}</option>";
+            }
+        }
+        else {
+            foreach ( $entity_types as $entity_type ) {
+    			if ( $current_entity_type === $entity_type['attributes']['name'] ) {
+    				$html .= "<option value = '{$entity_type['attributes']['name']}' selected='true'>{$entity_type['attributes']['singular_label']} </option>";
+    			} else {
+    				$html .= "<option value = '{$entity_type['attributes']['name']}'>{$entity_type['attributes']['singular_label']}</option>";
+    			}
+    		}
+        }
+
 		$html .= '</select>';
 
 		echo $html;
@@ -286,7 +330,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function entity_image_url_cb( $args ) {
-		$fields = [ '', 'post_thumbnail_url' ];
+		$fields = [ 'post_thumbnail_url', '' ];
 
 		echo $this->print_field_select( "{$args['post_type_name']}_entity_image_url", $fields );
 	}
@@ -352,17 +396,22 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$fields = empty( $fields ) ? $this->fields : $fields;
 
 		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
-		foreach ( $fields as $field ) {
-			if ( $option_value === $field ) {
-				$html .= "<option value = '$field' selected='true'>"
-				. $this->field_name( $field )
-				. '</option>';
-			} else {
-				$html .= "<option value = '$field'>"
-				. $this->field_name( $field )
-				. '</option>';
-			}
+		if( $option_value === false ) {
+			$html .= '<option value="" selected="true"></option>';
+            foreach ( $fields as $field ) {
+                $html .= "<option value='$field'>{$this->field_name( $field )}</option>";
+            }
 		}
+        else {
+            foreach ( $fields as $field ) {
+                if ( $option_value === $field ) {
+                    $html .= "<option value='$field' selected='true'>{$this->field_name( $field )}</option>";
+                } else {
+                    $html .= "<option value='$field'>{$this->field_name( $field )}</option>";
+                }
+            }
+        }
+
 		return $html;
 	}
 

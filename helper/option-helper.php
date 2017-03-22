@@ -7,16 +7,21 @@ trait OptionHelper {
 
 	private function get_option( $option_suffix ) {
 		$defaults = [
-		'api_key' => '',
+        'entity_description' => 'post_content',
+        'entity_image_url' => 'post_thumbnail_url',
+        'entity_title' => 'post_title',
+        'entity_url' => 'post_permalink',
 		'post_type' => 'post',
-		'entity_description' => 'post_content',
-		'entity_image_url' => 'post_thumbnail_url',
-		'entity_title' => 'post_title',
-		'entity_url' => 'post_permalink',
 		];
 
 		$option = get_option( $this->option( $option_suffix ) );
 
-		return (false !== $option) ? $option : $defaults[ $option_suffix ];
+        if ( $option === false ) {
+            return in_array( $option_suffix, $defaults ) ? $defaults[ $option_suffix ] : false;
+        }
+        else {
+            return $option;
+        }
+
 	}
 }
