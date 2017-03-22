@@ -231,13 +231,13 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	}
 
 	public function register_widgets() {
-        $optin_widget_class = 'OptinWidget';
+		$optin_widget_class = 'OptinWidget';
 
 		if ( $this->get_option( 'optin' ) ) {
 			register_widget( $optin_widget_class );
 		} else {
-            unregister_widget( $optin_widget_class );
-        }
+			unregister_widget( $optin_widget_class );
+		}
 	}
 
 	public function general_cb() {
@@ -264,7 +264,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 
 		$select_blank = true;
 
-        foreach ( $this->get_proxy( 'optin' )->all()->getBody()['data'] as $optin ) {
+		foreach ( $this->get_proxy( 'optin' )->all()->getBody()['data'] as $optin ) {
 			if ( $current_optin === $optin['attributes']['name'] ) {
 				$html .= "<option value = '{$optin['attributes']['name']}' selected>{$optin['attributes']['name']}</option>";
 				$select_blank = false;
@@ -273,7 +273,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			}
 		}
 
-		echo $html .= '<option value ="" '. ($select_blank ? 'selected' : '') .'></option></select>';
+		echo $html .= '<option value ="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
 	}
 
 	public function post_type_cb() {
@@ -319,7 +319,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			}
 		}
 
-		echo $html .= '<option value="" '. ($select_blank ? 'selected' : '') .'></option></select>';
+		echo $html .= '<option value="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
 	}
 
 	public function entity_description_cb( $args ) {
@@ -405,7 +405,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			}
 		}
 
-		return $html .= '<option value="" '. ($select_blank ? 'selected' : '') .'></option></select>';
+		return $html .= '<option value="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
 	}
 
 	private function field_name( $field ) {

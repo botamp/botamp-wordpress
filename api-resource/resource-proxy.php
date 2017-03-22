@@ -17,11 +17,11 @@ class ResourceProxy {
 		add_action( 'shutdown', array( $this, 'gracefully_fail' ) );
 
 		$this->resources = [
-            'contact' => new Contact(),
-            'entity_type' => new EntityType(),
-            'me' => new Me(),
-            'optin' => new Optin(),
-            'order_entity' => new OrderEntity(),
+			'contact' => new Contact(),
+			'entity_type' => new EntityType(),
+			'me' => new Me(),
+			'optin' => new Optin(),
+			'order_entity' => new OrderEntity(),
 			'product_entity' => new ProductEntity(),
 			'subscription' => new Subscription(),
 		];
