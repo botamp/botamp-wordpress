@@ -1,11 +1,12 @@
 <?php
 
-require_once 'product-entity.php';
-require_once 'order-entity.php';
 require_once 'contact.php';
-require_once 'subscription.php';
-require_once 'me.php';
 require_once 'entity-type.php';
+require_once 'me.php';
+require_once 'optin.php';
+require_once 'order-entity.php';
+require_once 'product-entity.php';
+require_once 'subscription.php';
 
 class ResourceProxy {
 
@@ -16,12 +17,13 @@ class ResourceProxy {
 		add_action( 'shutdown', array( $this, 'gracefully_fail' ) );
 
 		$this->resources = [
+            'contact' => new Contact(),
+            'entity_type' => new EntityType(),
+            'me' => new Me(),
+            'optin' => new Optin(),
+            'order_entity' => new OrderEntity(),
 			'product_entity' => new ProductEntity(),
-			'order_entity' => new OrderEntity(),
-			'contact' => new Contact(),
 			'subscription' => new Subscription(),
-			'me' => new Me(),
-			'entity_type' => new EntityType(),
 		];
 
 		$this->current_resource = $this->resources[ $resource_code ];
@@ -44,14 +46,14 @@ class ResourceProxy {
 	}
 
 	public function gracefully_fail() {
-		$last_error = error_get_last();
-		if ( E_ERROR === $last_error['type'] ) {
-			deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
-
-			require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
-			echo $shutdown_alert;
-
-			exit;
-		}
+		// $last_error = error_get_last();
+		// if ( E_ERROR === $last_error['type'] ) {
+		// 	deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+        //
+		// 	require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
+		// 	echo $shutdown_alert;
+        //
+		// 	exit;
+		// }
 	}
 }
