@@ -372,19 +372,14 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$fields = empty( $fields ) ? $this->fields : $fields;
 
 		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
-
-		$select_blank = true;
+        $html .= '<option value=""></option>';
 
 		foreach ( $fields as $field ) {
-			if ( $option_value === $field ) {
-				$html .= "<option value='$field' selected>{$this->field_name( $field )}</option>";
-				$select_blank = false;
-			} else {
-				$html .= "<option value='$field'>{$this->field_name( $field )}</option>";
-			}
+            $selected_attribute = $option_value === $field ? 'selected' : '';
+            $html .= "<option value='$field' {$selected_attribute}>{$this->field_name( $field )}</option>";
 		}
 
-		return $html .= '<option value="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
+		return $html .= '</select>';
 	}
 
 	private function field_name( $field ) {
