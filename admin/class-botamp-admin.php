@@ -120,17 +120,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 			)
 		);
 
-		add_settings_field(
-			$this->option( 'optin' ),
-			__( 'Optin to display', 'botamp' ),
-			array( $this, 'optin_cb' ),
-			$section_page,
-			$this->option( 'general' ),
-			array(
-				'label_for' => $this->option( 'optin' ),
-			)
-		);
-
 		register_setting( $fields_group, $this->option( 'api_key' ) );
 		register_setting( $fields_group, $this->option( 'optin' ) );
 
@@ -269,25 +258,6 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 	public function api_key_cb() {
 		$api_key = $this->get_option( 'api_key' );
 		echo '<input type="text" name="' . $this->option( 'api_key' ) . '" value="' . $api_key . '" class="regular-text"> ';
-	}
-
-	public function optin_cb() {
-		$current_optin = $this->get_option( 'optin' );
-
-		$html = '<select name = "' . $this->option( 'optin' ) . '"class = "regular-list">';
-
-		$select_blank = true;
-
-		foreach ( $this->get_proxy( 'optin' )->all()->getBody()['data'] as $optin ) {
-			if ( $current_optin === $optin['attributes']['name'] ) {
-				$html .= "<option value = '{$optin['attributes']['name']}' selected>{$optin['attributes']['name']}</option>";
-				$select_blank = false;
-			} else {
-				$html .= "<option value = '{$optin['attributes']['name']}'>{$optin['attributes']['name']}</option>";
-			}
-		}
-
-		echo $html .= '<option value ="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
 	}
 
 	public function post_type_cb() {
