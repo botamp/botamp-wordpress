@@ -287,20 +287,16 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
+        $html .= '<option value="" selected></option>';
+
 		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
 
-		$select_blank = true;
-
 		foreach ( $entity_types as $entity_type ) {
-			if ( $current_entity_type === $entity_type['attributes']['name'] ) {
-				$html .= "<option value = '{$entity_type['attributes']['name']}' selected>{$entity_type['attributes']['singular_label']} </option>";
-				$select_blank = false;
-			} else {
-				$html .= "<option value = '{$entity_type['attributes']['name']}'>{$entity_type['attributes']['singular_label']}</option>";
-			}
+            $selected_attribute = $current_entity_type == $entity_type['attributes']['name'] ? 'selected' : '';
+            $html .= "<option value = '{$entity_type['attributes']['name']}' {$selected_attribute}>{$entity_type['attributes']['singular_label']} </option>";
 		}
 
-		echo $html .= '<option value="" ' . ($select_blank ? 'selected' : '') . '></option></select>';
+        echo $html .= '</select>';
 	}
 
 	public function entity_description_cb( $args ) {
