@@ -6,7 +6,7 @@
  * so that it is ready for translation.
  *
  * @link       support@botamp.com
- * @since      1.2.3
+ * @since      1.3.0
  *
  * @package    Botamp
  * @subpackage Botamp/includes
@@ -18,7 +18,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @since      1.2.3
+ * @since      1.3.0
  * @package    Botamp
  * @subpackage Botamp/includes
  * @author     Botamp, Inc. <support@botamp.com>
@@ -29,7 +29,7 @@ class Botamp_I18n {
 	/**
 	 * Load the plugin text domain for translation.
 	 *
-	 * @since    1.2.3
+	 * @since    1.3.0
 	 */
 	public function load_plugin_textdomain() {
 
