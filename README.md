@@ -40,7 +40,7 @@ The content on Botamp is automatically updated whenever the corresponding post i
 ### Delete content
 The content on Botamp is automatically deleted whenever the corresponding post is deleted.
 
-### Botamp optins integration
+### Optins integration
 From the widget area, you can integrate your Botamp optins to your pages.
 
 ### Import all of your products
