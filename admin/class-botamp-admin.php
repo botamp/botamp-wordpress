@@ -292,7 +292,7 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
 
 		foreach ( $entity_types as $entity_type ) {
-            $selected_attribute = $current_entity_type == $entity_type['attributes']['name'] ? 'selected' : '';
+            $selected_attribute = $current_entity_type === $entity_type['attributes']['name'] ? 'selected' : '';
             $html .= "<option value = '{$entity_type['attributes']['name']}' {$selected_attribute}>{$entity_type['attributes']['singular_label']} </option>";
 		}
 
