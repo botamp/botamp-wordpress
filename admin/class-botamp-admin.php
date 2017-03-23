@@ -269,8 +269,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		foreach ( $this->post_types as $post_type ) {
 			$url = add_query_arg( 'post-type', $post_type->name, admin_url( 'options-general.php?page=botamp' ) );
 
-            $selected_attribute = $current_post_type === $post_type->name ? 'selected' : '';
-            $html .= "<option value = '{$url}' {$selected_attribute}>{$post_type->label} </option>";
+			$selected_attribute = $current_post_type === $post_type->name ? 'selected' : '';
+			$html .= "<option value = '{$url}' {$selected_attribute}>{$post_type->label} </option>";
 		}
 
 		echo $html .= '</select>';
@@ -287,16 +287,16 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$current_entity_type = $this->get_option( "{$args['post_type_name']}_entity_type" );
 
 		$html = '<select name = "' . $this->option( "{$args['post_type_name']}_entity_type" ) . '"class = "regular-list">';
-        $html .= '<option value="" selected></option>';
+		$html .= '<option value="" selected></option>';
 
 		$entity_types = $this->get_proxy( 'entity_type' )->all()->getBody()['data'];
 
 		foreach ( $entity_types as $entity_type ) {
-            $selected_attribute = $current_entity_type === $entity_type['attributes']['name'] ? 'selected' : '';
-            $html .= "<option value = '{$entity_type['attributes']['name']}' {$selected_attribute}>{$entity_type['attributes']['singular_label']} </option>";
+			$selected_attribute = $current_entity_type === $entity_type['attributes']['name'] ? 'selected' : '';
+			$html .= "<option value = '{$entity_type['attributes']['name']}' {$selected_attribute}>{$entity_type['attributes']['singular_label']} </option>";
 		}
 
-        echo $html .= '</select>';
+		echo $html .= '</select>';
 	}
 
 	public function entity_description_cb( $args ) {
@@ -372,11 +372,11 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$fields = empty( $fields ) ? $this->fields : $fields;
 
 		$html = '<select name = "' . $this->option( $option ) . '" class = "regular-list" >';
-        $html .= '<option value=""></option>';
+		$html .= '<option value=""></option>';
 
 		foreach ( $fields as $field ) {
-            $selected_attribute = $option_value === $field ? 'selected' : '';
-            $html .= "<option value='$field' {$selected_attribute}>{$this->field_name( $field )}</option>";
+			$selected_attribute = $option_value === $field ? 'selected' : '';
+			$html .= "<option value='$field' {$selected_attribute}>{$this->field_name( $field )}</option>";
 		}
 
 		return $html .= '</select>';
