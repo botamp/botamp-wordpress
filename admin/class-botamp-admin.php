@@ -269,11 +269,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		foreach ( $this->post_types as $post_type ) {
 			$url = add_query_arg( 'post-type', $post_type->name, admin_url( 'options-general.php?page=botamp' ) );
 
-			if ( $current_post_type === $post_type->name ) {
-				$html .= "<option value = '{$url}' selected>{$post_type->label} </option>";
-			} else {
-				$html .= "<option value = '{$url}'>{$post_type->label}</option>";
-			}
+            $selected_attribute = $current_post_type === $post_type->name ? 'selected' : '';
+            $html .= "<option value = '{$url}' {$selected_attribute}>{$post_type->label} </option>";
 		}
 
 		echo $html .= '</select>';
