@@ -46,14 +46,14 @@ class ResourceProxy {
 	}
 
 	public function gracefully_fail() {
-		// $last_error = error_get_last();
-		// if ( E_ERROR === $last_error['type'] ) {
-		// 	deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
-		//
-		// 	require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
-		// 	echo $shutdown_alert;
-		//
-		// 	exit;
-		// }
+		$last_error = error_get_last();
+		if ( E_ERROR === $last_error['type'] ) {
+			deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+
+			require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
+			echo $shutdown_alert;
+
+			exit;
+		}
 	}
 }
