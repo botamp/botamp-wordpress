@@ -1,12 +1,12 @@
 <?php
 
-require_once 'contact.php';
-require_once 'entity-type.php';
-require_once 'me.php';
-require_once 'optin.php';
-require_once 'order-entity.php';
-require_once 'product-entity.php';
-require_once 'subscription.php';
+require_once 'class-contact.php';
+require_once 'class-entitytype.php';
+require_once 'class-me.php';
+require_once 'class-optin.php';
+require_once 'class-orderentity.php';
+require_once 'class-productentity.php';
+require_once 'class-subscription.php';
 
 class ResourceProxy {
 
@@ -46,14 +46,14 @@ class ResourceProxy {
 	}
 
 	public function gracefully_fail() {
-		$last_error = error_get_last();
-		if ( E_ERROR === $last_error['type'] ) {
-			deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
-
-			require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
-			echo $shutdown_alert;
-
-			exit;
-		}
+		// $last_error = error_get_last();
+		// if ( E_ERROR === $last_error['type'] ) {
+		// 	deactivate_plugins( plugin_dir_path( dirname( __FILE__ ) ) . 'botamp.php' );
+		//
+		// 	require plugin_dir_path( dirname( __FILE__ ) ) . 'includes/shutdown-alert.php';
+		// 	echo $shutdown_alert;
+		//
+		// 	exit;
+		// }
 	}
 }

@@ -3,7 +3,7 @@
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'vendor/autoload.php';
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/option-helper.php';
 require_once plugin_dir_path( dirname( __FILE__ ) ) . 'helper/proxy-helper.php';
-require_once plugin_dir_path( dirname( __FILE__ ) ) . 'widgets/optin-widget.php';
+require_once plugin_dir_path( dirname( __FILE__ ) ) . 'widgets/class-optinwidget.php';
 
 class Botamp_Admin {
 
@@ -468,8 +468,8 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		];
 
 		foreach ( [ 'description', 'url', 'image_url', 'title' ] as $field ) {
-			$option = $this->get_option( "{$post_type}_entity_{$field}"
-			switch ( $option ) { )
+			$option = $this->get_option( "{$post_type}_entity_{$field}" );
+			switch ( $option ) {
 				case 'post_title':
 					$values[ $field ] = apply_filters( 'the_title', $post['post_title'], $post_id );
 					break;

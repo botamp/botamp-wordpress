@@ -1,5 +1,5 @@
 <?php
-require_once 'abstract-resource.php';
+require_once 'class-abstractresource.php';
 
 class OrderEntity extends AbstractResource {
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once 'abstract-resource.php';
+require_once 'class-abstractresource.php';
 
 class Me extends AbstractResource {
 
