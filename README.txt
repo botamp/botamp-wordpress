@@ -28,6 +28,7 @@ to interact with the [Botamp API](https://app.botamp.com/docs/api).
 
 * Posts, pages or custom post types syncing from your website to Botamp.
 * Syncing on content creation, update and deletion.
+* Integration of your Botamp optins to your pages
 * Woocommerce integration.
 * Notification on Woocommerce checkout and order status change.
 * Customers subscription/unsubscription from notifications.
