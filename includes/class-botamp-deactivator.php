@@ -3,7 +3,7 @@
  * Fired during plugin deactivation
  *
  * @link       support@botamp.com
- * @since      1.3.1
+ * @since      1.3.2
  *
  * @package    Botamp
  * @subpackage Botamp/includes
@@ -14,7 +14,7 @@
  *
  * This class defines all code necessary to run during the plugin's deactivation.
  *
- * @since      1.3.1
+ * @since      1.3.2
  * @package    Botamp
  * @subpackage Botamp/includes
  * @author     Botamp, Inc. <support@botamp.com>
@@ -26,7 +26,7 @@ class Botamp_Deactivator {
 	 *
 	 * Long Description.
 	 *
-	 * @since    1.3.1
+	 * @since    1.3.2
 	 */
 	public static function deactivate() {
 		add_rewrite_endpoint( 'botamp_order_unsubscribe', EP_ROOT | EP_PAGES );
