@@ -16,9 +16,11 @@ class Botamp_Admin {
 	private $post_types;
 
 	public function __construct( $plugin_name, $version ) {
+        global $wp_post_types;
+
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-		$this->post_types = get_post_types( '', 'objects' );
+		$this->post_types = $this->get_post_types();
 
 		global $wpdb;
 		$this->fields = [
@@ -365,6 +367,22 @@ Please provide a valid API key on the <a href="%s">settings page</a>.', 'botamp'
 		$me_proxy->set_botamp_client( $new_api_key );
 		$me_proxy->get();
 	}
+
+	private function get_post_types() {
+        $post_types = get_post_types( '', 'objects');
+
+        if( !in_array( 'product', array_map(function($post_type) { return $post_type->name; }, $post_types ) )
+         && in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+
+            $product_post_type = new stdClass();
+            $product_post_type->name = 'product';
+            $product_post_type->label = 'Product';
+
+            $post_types[] = $product_post_type;
+        }
+
+        return $post_types;
+    }
 
 	private function print_field_select( $option, $fields = [] ) {
 		$option_value = $this->get_option( $option );
