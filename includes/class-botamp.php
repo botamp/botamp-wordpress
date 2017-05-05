@@ -246,7 +246,7 @@ class Botamp {
 	}
 
 	private function woocommerce_activated() {
-	 	return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) );
+		 return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) );
 	}
 
 }
